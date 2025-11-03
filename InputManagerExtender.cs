@@ -25,17 +25,24 @@ public static class InputManagerExtenderCommon {
 [HarmonyPatch(typeof(InputManager))]
 [HarmonyPatch("SetAimInputUsingMouse")]
 public static class InputManagerExtender {
-	static int aimCheckLayerMask;
-	static FieldInfo inputAimPointField;
-
 	static bool initialized = false;
 	static Vector2 CenterOfScreen;
 
-	public static bool Prefix(ref Vector2 mouseDelta) {
-		if (!initialized) {
-			CenterOfScreen.x = Screen.width * 0.5f;
-			CenterOfScreen.y = Screen.height * 0.5f;
+	static bool isCurrentlyInputActive = false;
+	static int aimCheckLayerMask;
+	static FieldInfo inputAimPointField;
+	static FieldInfo _aimMousePosCacheField;
 
+	// Handling recoil
+	static bool needResetRecoil = true;
+	static float verticalRecoil = 0.0f;
+	static Vector2 recoilOffsetAccum = Vector2.zero;
+	static Vector2 targetMousePos = Vector2.zero;
+	static float maxVerticalRecoil;
+	static float RandomGlitchRange;
+
+	public static bool Prefix(InputManager __instance, ref Vector2 mouseDelta) {
+		if (!initialized) {
 			aimCheckLayerMask = (1 << LayerMask.NameToLayer("FowBlock"))
 				| (1 << LayerMask.NameToLayer("Ground"))
 				| (1 << LayerMask.NameToLayer("Wall_FowBlock"))
@@ -48,25 +55,67 @@ public static class InputManagerExtender {
 				| (1 << LayerMask.NameToLayer("DamageReceiver"));
 
 			inputAimPointField = InputManagerExtenderCommon.getField("inputAimPoint");
+			_aimMousePosCacheField = InputManagerExtenderCommon.getField("_aimMousePosCache");
 
 			initialized = true;
 		}
-		if (!ShoulderCamera.shoulderCameraToggled || CameraMode.Active) {
+		if (!ShoulderCamera.shoulderCameraInitalized) {
 			return true;
 		}
 
+		isCurrentlyInputActive = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
+		if (!isCurrentlyInputActive) {
+			needResetRecoil = true;
+			verticalRecoil = 0f;
+			return true;
+		}
+		if (needResetRecoil && isCurrentlyInputActive) {
+			needResetRecoil = false;
+			verticalRecoil = 0f;
+			recoilOffsetAccum = Vector2.zero;
+		}
+
+		CenterOfScreen.x = Screen.width  * 0.5f;
+		CenterOfScreen.y = Screen.height * 0.5f;
+		maxVerticalRecoil = Screen.height * 0.75f;
+		RandomGlitchRange = Screen.height * 0.05f;
+
 		// Make cursor always be on the center of screen
-		mouseDelta = (CenterOfScreen - LevelManager.Instance.InputManager.AimScreenPoint) * 10f / OptionsManager.MouseSensitivity;
+		targetMousePos = CenterOfScreen + Vector2.up * verticalRecoil;
+		_aimMousePosCacheField.SetValue(__instance, targetMousePos);
+		mouseDelta = Vector2.zero;
+		/* origin code
+		mouseDelta = (targetMousePos - LevelManager.Instance.InputManager.AimScreenPoint)
+			* 10f / OptionsManager.MouseSensitivity;
+		*/
 		return true;
 	}
 
 	public static void Postfix(InputManager __instance) {
-		if (!ShoulderCamera.shoulderCameraToggled || CameraMode.Active) {
+		if (!ShoulderCamera.shoulderCameraInitalized) {
+			return;
+		}
+		if (!isCurrentlyInputActive) {
 			return;
 		}
 
+		Vector2 offset = __instance.AimScreenPoint - targetMousePos;
+		recoilOffsetAccum += offset;
+		recoilOffsetAccum = Vector2.Max(Vector2.zero, recoilOffsetAccum);
+		float sqrLenOfOffset = recoilOffsetAccum.sqrMagnitude;
+		if (sqrLenOfOffset <= 1f) {
+			recoilOffsetAccum = Vector2.zero;
+			verticalRecoil = 0f;
+		} else {
+			// Limit the max vertical recoil offset
+			verticalRecoil = Mathf.Min(maxVerticalRecoil, Mathf.Sqrt(sqrLenOfOffset));
+			// random glitch
+			verticalRecoil += UnityEngine.Random.Range(-RandomGlitchRange, RandomGlitchRange);
+			recoilOffsetAccum = recoilOffsetAccum.normalized * verticalRecoil;
+		}
+
 		RaycastHit hitinfo;
-		Ray ray = LevelManager.Instance.GameCamera.renderCamera.ScreenPointToRay(CenterOfScreen);
+		Ray ray = LevelManager.Instance.GameCamera.renderCamera.ScreenPointToRay(CenterOfScreen + Vector2.up * verticalRecoil);
 		ItemAgent_Gun gun = __instance.characterMainControl.GetGun();
 
 		// Hit position of aimming

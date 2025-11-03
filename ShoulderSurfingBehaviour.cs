@@ -12,7 +12,8 @@ using Duckov.MiniMaps.UI;
 namespace ShoulderSurfing {
 
 	public class ModBehaviour: Duckov.Modding.ModBehaviour {
-		Harmony harmony = new Harmony("com.didiv.ShoulderSurfing");
+		const string MOD_ID = "com.didiv.ShoulderSurfing";
+		Harmony harmony = new Harmony(MOD_ID);
 
 		void PatchSingleExtender(Type extenderType, Type ExtenderType, string methodName, BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public) {
 			MethodInfo originMethod = extenderType.GetMethod(methodName, bindFlags);
@@ -27,7 +28,7 @@ namespace ShoulderSurfing {
 
 		void UnpatchSingleExtender(Type extenderType, string methodName, BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public) {
 			MethodInfo originMethod = extenderType.GetMethod(methodName, bindFlags);
-			harmony.Unpatch(originMethod, HarmonyPatchType.All);
+			harmony.Unpatch(originMethod, HarmonyPatchType.All, MOD_ID);
 		}
 
 		void ApplyHarmonyExtenders() {

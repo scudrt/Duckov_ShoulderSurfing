@@ -4,6 +4,7 @@ using UnityEngine.Rendering.Universal;
 using System.Reflection;
 using UnityEngine.Rendering;
 using Cinemachine.Utility;
+using UnityEngine.InputSystem;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
@@ -185,8 +186,13 @@ namespace ShoulderSurfing {
 			RehookCamera();
 
 			// View switch
-			if (Input.GetKeyDown(viewSwitchKeyCode) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Comma))) {
+			if (Keyboard.current.f7Key.wasPressedThisFrame
+				|| (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.commaKey.wasPressedThisFrame)) {
 				shoulderCameraToggled = !shoulderCameraToggled;
+			}
+
+			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.slashKey.wasPressedThisFrame) {
+				MiniMapCommon.isMapRotateWithCamera = !MiniMapCommon.isMapRotateWithCamera;
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
@@ -195,16 +201,18 @@ namespace ShoulderSurfing {
 				OnShoulderCameraDisable();
 			}
 
-			if (!target) {
+			if (target == null) {
 				target = CharacterMainControl.Main;
 			}
-			if (!inputManager) {
-				inputManager = LevelManager.Instance.InputManager;
+			if (inputManager == null) {
+				if (LevelManager.Instance != null) {
+					inputManager = LevelManager.Instance.InputManager;
+				}
 			}
 		}
 
 		void LateUpdate() {
-			if (hookCamera == null || target == null) {
+			if (hookCamera == null || target == null || mainCamera == null) {
 				return; // Come in next frame :)
 			}
 			if (!shoulderCameraToggled || !shoulderCameraInitalized) {
@@ -213,7 +221,7 @@ namespace ShoulderSurfing {
 
 			// Update camera rotation by input
 			if (this.inputManager) {
-				if (InputManager.InputActived) { // No camera rotation while the game is paused or the inventory is open
+				if (InputManager.InputActived && CharacterInputControl.Instance) { // No camera rotation while the game is paused or the inventory is open
 					// Update mouse delta to the rotation
 					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
 					// Shoulder surfing is more sensitive than the origin
