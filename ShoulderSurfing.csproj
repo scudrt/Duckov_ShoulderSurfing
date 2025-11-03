@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DuckovPath>D:\Steam\steamapps\common\Escape from Duckov</DuckovPath>
+    <LangVersion>10.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\TeamSoda.*" />
+        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\Cinemachine.dll" />
+        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\ItemStatsSystem.dll" />
+        <Reference Include="0Harmony">
+          <HintPath>libs\0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\Unity*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ShoulderSurfing\" />
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy bin\Release\netstandard2.1\ShoulderSurfing.dll &quot;D:\Steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing&quot;" />
+  </Target> 
+</Project>

@@ -1,0 +1,261 @@
+﻿using UnityEngine;
+using Cinemachine;
+using UnityEngine.Rendering.Universal;
+using System.Reflection;
+using UnityEngine.Rendering;
+using Cinemachine.Utility;
+
+namespace ShoulderSurfing {
+	public class ShoulderCamera: MonoBehaviour {
+		// Global switch indicating whether we're in shoulder surfing view
+		public static bool shoulderCameraToggled = false;
+		public static bool shoulderCameraInitalized = false;
+
+		public static void EnableTPSMode(GameObject parentMod) {
+			parentMod.AddComponent<ShoulderCamera>();
+		}
+
+		public static void DisableTPSMode(GameObject parentMod) {
+			ShoulderCamera me;
+			if (parentMod.TryGetComponent<ShoulderCamera>(out me)) {
+				shoulderCameraToggled = false;
+				me.OnShoulderCameraDisable();
+				Destroy(me);
+			}
+		}
+
+		public void RehookCamera() {
+			if (hookCamera != null && mainCamera != null) {
+				return;
+			}
+
+			this.hookCamera = GameCamera.Instance;
+			if (hookCamera == null) {
+				return;
+			}
+
+			if (shoulderCameraToggled) {
+				// The camera should be reinitialized after loading maps in shoulder mode
+				shoulderCameraInitalized = false;
+				OnShoulderCameraEnable();
+			}
+		}
+
+		public void OnShoulderCameraEnable() {
+			if (shoulderCameraInitalized) {
+				return;
+			}
+			if (hookCamera == null || hookCamera.renderCamera == null) {
+				return;
+			}
+
+			originDefaultFOV = hookCamera.defaultFOV;
+			originAdsFOV = hookCamera.adsFOV;
+			// Initialize game camera FOV
+			hookCamera.defaultFOV = 75f;
+			hookCamera.adsFOV = 45f;
+
+			mainCamera = hookCamera.renderCamera; // hookCamera.mainVCam;
+
+			if (hookCamera.mianCameraArm != null) {
+				hookCamera.mianCameraArm.enabled = false;
+			}
+            if (hookCamera.brain != null) {
+				hookCamera.brain.enabled = false;
+			}
+			if (hookCamera.mainVCam != null) {
+				hookCamera.mainVCam.enabled = false;
+			}
+
+			originFarClip = mainCamera.farClipPlane; // original: 300f
+			mainCamera.farClipPlane = 80f;
+
+			originDOF2Active.Clear();
+			originMotionBlur2Active.Clear();
+			// Removing all depth of field effects in the game
+			foreach (Volume volume in FindObjectsOfType<Volume>(true)) {
+				if (volume && volume.profile) {
+					DepthOfField depthOfField = null;
+					MotionBlur motionBlur = null;
+					volume.profile.TryGet<DepthOfField>(out depthOfField);
+					volume.profile.TryGet<MotionBlur>(out motionBlur);
+					if (depthOfField != null) {
+						originDOF2Active[depthOfField] = depthOfField.active;
+						depthOfField.active = false;
+					}
+					if (motionBlur != null) {
+						originMotionBlur2Active[motionBlur] = motionBlur.active;
+						motionBlur.active = false;
+					}
+				}
+			}
+
+			Debug.Log("Shoulder Camera initialized");
+
+			shoulderCameraInitalized = true;
+		}
+
+		void OnShoulderCameraDisable(bool switchToCameraMode = false) {
+			if (!shoulderCameraInitalized) {
+				return;
+			}
+			if (hookCamera == null || mainCamera == null) {
+				return;
+			}
+
+			hookCamera.defaultFOV = originDefaultFOV;
+			hookCamera.adsFOV = originAdsFOV;
+
+			mainCamera.farClipPlane = originFarClip;
+
+			if (!switchToCameraMode) {
+				if (hookCamera.mainVCam != null) {
+					hookCamera.mainVCam.enabled = true;
+				}
+				if (hookCamera.mianCameraArm != null) {
+					hookCamera.mianCameraArm.enabled = true;
+				}
+			}
+
+			if (hookCamera.brain != null) {
+				hookCamera.brain.enabled = true;
+			}
+
+			// Recover all DepthOfField and MotionBlur components
+			foreach (KeyValuePair<DepthOfField, bool> pair in originDOF2Active) {
+				pair.Key.active = pair.Value;
+			}
+			foreach (KeyValuePair<MotionBlur, bool> pair in originMotionBlur2Active) {
+				pair.Key.active = pair.Value;
+			}
+			originDOF2Active.Clear();
+			originMotionBlur2Active.Clear();
+
+			Debug.Log("Shoulder Camera deinitialized");
+
+			shoulderCameraInitalized = false;
+		}
+
+		void UpdateCollidedCameraPosition() {
+			// Update camera position by follow target
+			Vector3 cameraForward = mainCamera.transform.forward;
+			Vector3 cameraRight = Vector3.Cross(Vector3.up, cameraForward);
+			Vector3 anchorPos = target.transform.position + Vector3.up * 0.5f;
+
+			// v1.0: (1, 1.75, -2.8)
+			Vector3 shoulderCameraOffset = cameraRight * 1f + Vector3.up * 1.25f + cameraForward * -2.8f;
+			Vector3 shoulderCameraDir = shoulderCameraOffset.normalized;
+			float shoulderCameraDistance = shoulderCameraOffset.magnitude;
+			Ray shoulderCameraRay = new Ray(anchorPos, shoulderCameraDir);
+			RaycastHit hitinfo;
+			if (Physics.SphereCast(shoulderCameraRay, 0.1f, out hitinfo, shoulderCameraDistance, cameraCollisionLayerMask)) {
+				mainCamera.transform.position = anchorPos + hitinfo.distance * shoulderCameraDir;
+			} else {
+				// No colliding
+				mainCamera.transform.position = anchorPos + shoulderCameraOffset;
+			}
+		}
+
+		void Start() {
+			cameraYaw = 0f;
+			cameraPitch = 0f;
+
+			cameraCollisionLayerMask = (1 << LayerMask.NameToLayer("FowBlock"))
+				| (1 << LayerMask.NameToLayer("Ground"))
+				| (1 << LayerMask.NameToLayer("Wall_FowBlock"));
+
+			mouseDeltaField = typeof(CharacterInputControl).GetField("mouseDelta", BindingFlags.NonPublic | BindingFlags.Instance);
+
+			shoulderCameraToggled = true;
+			shoulderCameraInitalized = false;
+		}
+
+		void Update() {
+			if (LevelManager.Instance == null) {
+				return;
+			}
+
+			if (CameraMode.Active) {
+				if (shoulderCameraInitalized) {
+					OnShoulderCameraDisable(true);
+				}
+				return;
+			}
+
+			RehookCamera();
+
+			// View switch
+			if (Input.GetKeyDown(viewSwitchKeyCode) || (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Comma))) {
+				shoulderCameraToggled = !shoulderCameraToggled;
+			}
+
+			if (shoulderCameraToggled && !shoulderCameraInitalized) {
+				OnShoulderCameraEnable();
+			} else if (!shoulderCameraToggled && shoulderCameraInitalized) {
+				OnShoulderCameraDisable();
+			}
+
+			if (!target) {
+				target = CharacterMainControl.Main;
+			}
+			if (!inputManager) {
+				inputManager = LevelManager.Instance.InputManager;
+			}
+		}
+
+		void LateUpdate() {
+			if (hookCamera == null || target == null) {
+				return; // Come in next frame :)
+			}
+			if (!shoulderCameraToggled || !shoulderCameraInitalized) {
+				return;
+			}
+
+			// Update camera rotation by input
+			if (this.inputManager) {
+				if (InputManager.InputActived) { // No camera rotation while the game is paused or the inventory is open
+					// Update mouse delta to the rotation
+					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
+					// Shoulder surfing is more sensitive than the origin
+					currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
+					cameraYaw += currentMouseDelta.x;
+					cameraPitch = Mathf.Clamp(cameraPitch + currentMouseDelta.y, -70f, 70f);
+				}
+			}
+
+			mainCamera.fieldOfView = hookCamera.mainVCam.m_Lens.FieldOfView;
+
+			mainCamera.transform.rotation = Quaternion.Euler(-cameraPitch, cameraYaw, 0f);
+
+			UpdateCollidedCameraPosition();
+
+			global::System.Action<global::GameCamera, global::CharacterMainControl> onCameraPosUpdate = global::GameCamera.OnCameraPosUpdate;
+			if (onCameraPosUpdate != null) {
+				onCameraPosUpdate(hookCamera, this.target);
+			}
+		}
+
+		const KeyCode viewSwitchKeyCode = KeyCode.F7;
+
+		CharacterMainControl target;
+		InputManager inputManager;
+
+		GameCamera hookCamera;
+		Camera mainCamera;
+		// CinemachineVirtualCamera mainCamera;
+
+		FieldInfo mouseDeltaField;
+
+		int cameraCollisionLayerMask;
+
+		private float cameraPitch = 0f;
+		private float cameraYaw = 0f;
+
+		/*---------- Origin paramters of camera ----------*/
+		float originDefaultFOV = 0f;
+		float originAdsFOV = 0f;
+		float originFarClip = 0f;
+		Dictionary<DepthOfField, bool> originDOF2Active = new Dictionary<DepthOfField, bool>();
+		Dictionary<MotionBlur, bool> originMotionBlur2Active = new Dictionary<MotionBlur, bool>();
+	}
+}
