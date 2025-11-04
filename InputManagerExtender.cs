@@ -25,6 +25,9 @@ public static class InputManagerExtenderCommon {
 [HarmonyPatch(typeof(InputManager))]
 [HarmonyPatch("SetAimInputUsingMouse")]
 public static class InputManagerExtender {
+	public static float cameraShakePixel= 0f;
+	public static float globalShoulderRecoilMultiplier = 0.5f;
+
 	static bool initialized = false;
 	static Vector2 CenterOfScreen;
 
@@ -35,11 +38,11 @@ public static class InputManagerExtender {
 
 	// Handling recoil
 	static bool needResetRecoil = true;
-	static float verticalRecoil = 0.0f;
-	static Vector2 recoilOffsetAccum = Vector2.zero;
+	static Vector2 recoilAccum = Vector2.zero;
 	static Vector2 targetMousePos = Vector2.zero;
 	static float maxVerticalRecoil;
-	static float RandomGlitchRange;
+
+	static float camToNearPlane = 0f;
 
 	public static bool Prefix(InputManager __instance, ref Vector2 mouseDelta) {
 		if (!initialized) {
@@ -66,22 +69,21 @@ public static class InputManagerExtender {
 		isCurrentlyInputActive = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
 		if (!isCurrentlyInputActive) {
 			needResetRecoil = true;
-			verticalRecoil = 0f;
+			cameraShakePixel = 0f;
 			return true;
 		}
 		if (needResetRecoil && isCurrentlyInputActive) {
 			needResetRecoil = false;
-			verticalRecoil = 0f;
-			recoilOffsetAccum = Vector2.zero;
+			cameraShakePixel = 0f;
+			recoilAccum = Vector2.zero;
 		}
 
 		CenterOfScreen.x = Screen.width  * 0.5f;
 		CenterOfScreen.y = Screen.height * 0.5f;
-		maxVerticalRecoil = Screen.height * 0.75f;
-		RandomGlitchRange = Screen.height * 0.05f;
+		maxVerticalRecoil = Screen.height * 0.2f;
 
 		// Make cursor always be on the center of screen
-		targetMousePos = CenterOfScreen + Vector2.up * verticalRecoil;
+		targetMousePos = CenterOfScreen + Vector2.up * cameraShakePixel;
 		_aimMousePosCacheField.SetValue(__instance, targetMousePos);
 		mouseDelta = Vector2.zero;
 		/* origin code
@@ -99,23 +101,30 @@ public static class InputManagerExtender {
 			return;
 		}
 
-		Vector2 offset = __instance.AimScreenPoint - targetMousePos;
-		recoilOffsetAccum += offset;
-		recoilOffsetAccum = Vector2.Max(Vector2.zero, recoilOffsetAccum);
-		float sqrLenOfOffset = recoilOffsetAccum.sqrMagnitude;
-		if (sqrLenOfOffset <= 1f) {
-			recoilOffsetAccum = Vector2.zero;
-			verticalRecoil = 0f;
+		// Split recoil into camera shake and aim shake
+		Vector2 recoilThisFrame = __instance.AimScreenPoint - targetMousePos;
+		if (recoilThisFrame.x <= 0f && recoilThisFrame.y <= 0f) {
+			// Recoil recovering, recover it faster
+			recoilThisFrame *= 1f;
+		} else {
+			// Recoiling with fire, accelerate slower
+			recoilThisFrame *= globalShoulderRecoilMultiplier;
+		}
+		recoilAccum += recoilThisFrame;
+		recoilAccum = Vector2.Max(Vector2.zero, recoilAccum);
+		float lenOfRecoilOffset = recoilAccum.magnitude;
+		if (lenOfRecoilOffset <= 1f) {
+			recoilAccum = Vector2.zero;
+			cameraShakePixel = 0f;
 		} else {
 			// Limit the max vertical recoil offset
-			verticalRecoil = Mathf.Min(maxVerticalRecoil, Mathf.Sqrt(sqrLenOfOffset));
-			// random glitch
-			verticalRecoil += UnityEngine.Random.Range(-RandomGlitchRange, RandomGlitchRange);
-			recoilOffsetAccum = recoilOffsetAccum.normalized * verticalRecoil;
+			cameraShakePixel = Mathf.Min(maxVerticalRecoil, lenOfRecoilOffset);
+			recoilAccum = recoilAccum.normalized * cameraShakePixel;
 		}
 
+		// Aim after calculating recoil
 		RaycastHit hitinfo;
-		Ray ray = LevelManager.Instance.GameCamera.renderCamera.ScreenPointToRay(CenterOfScreen + Vector2.up * verticalRecoil);
+		Ray ray = LevelManager.Instance.GameCamera.renderCamera.ScreenPointToRay(targetMousePos);
 		ItemAgent_Gun gun = __instance.characterMainControl.GetGun();
 
 		// Hit position of aimming

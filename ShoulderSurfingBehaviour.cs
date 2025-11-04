@@ -1,9 +1,4 @@
-﻿using System;
-using UnityEngine;
-using Duckov.Utilities;
-using HarmonyLib;
-using UnityEngine.InputSystem;
-using Duckov.Options;
+﻿using HarmonyLib;
 using System.Reflection;
 using Duckov.UI;
 using Duckov.MiniMaps;
@@ -38,6 +33,7 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(HealthBar), typeof(HealthBarOnTargetHurtExtender), "OnTargetHurt", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapCompass), typeof(MiniMapCompassExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
+			// PatchSingleExtender(typeof(Projectile), typeof(ProjectileExtender), "Init");
 		}
 		void CancelHarmonyExtender() {
 			UnpatchSingleExtender(typeof(InputManager), "SetAimInputUsingMouse");
@@ -46,6 +42,7 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(HealthBar), "OnTargetHurt", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapCompass), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
+			// UnpatchSingleExtender(typeof(Projectile), "Init");
 		}
 		void Awake() {
 		}

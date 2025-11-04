@@ -27,6 +27,9 @@ public static class MiniMapCompassExtender {
 	public static bool Prefix(MiniMapCompass __instance) {
         if (arrowField == null) {
 			arrowField = typeof(MiniMapCompass).GetField("arrow", BindingFlags.NonPublic | BindingFlags.Instance);
+			if (arrowField == null) {
+				Debug.Log("[ShoulderSurfing] 无法获取指南针对象");
+			}
 		}
 
 		Transform trans = (Transform)arrowField.GetValue(__instance);

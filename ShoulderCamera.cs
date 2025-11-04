@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEngine.Rendering;
 using Cinemachine.Utility;
 using UnityEngine.InputSystem;
+using Duckov.Buildings.UI;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
@@ -176,7 +177,8 @@ namespace ShoulderSurfing {
 				return;
 			}
 
-			if (CameraMode.Active) {
+			bool otherModeInterupted = CameraMode.Active || (BuilderView.Instance && BuilderView.Instance.open);
+			if (otherModeInterupted) {
 				if (shoulderCameraInitalized) {
 					OnShoulderCameraDisable(true);
 				}
@@ -193,6 +195,10 @@ namespace ShoulderSurfing {
 
 			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.slashKey.wasPressedThisFrame) {
 				MiniMapCommon.isMapRotateWithCamera = !MiniMapCommon.isMapRotateWithCamera;
+			}
+			// Temporary recoil switch
+			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
+				InputManagerExtender.globalShoulderRecoilMultiplier = 0.5f - InputManagerExtender.globalShoulderRecoilMultiplier;
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
@@ -219,21 +225,24 @@ namespace ShoulderSurfing {
 				return;
 			}
 
-			// Update camera rotation by input
+			// Update camera rotation by player input
 			if (this.inputManager) {
 				if (InputManager.InputActived && CharacterInputControl.Instance) { // No camera rotation while the game is paused or the inventory is open
 					// Update mouse delta to the rotation
 					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
+
 					// Shoulder surfing is more sensitive than the origin
 					currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
 					cameraYaw += currentMouseDelta.x;
 					cameraPitch = Mathf.Clamp(cameraPitch + currentMouseDelta.y, -70f, 70f);
 				}
 			}
+			// Camera shaked by recoil
+			float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixel * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
 
 			mainCamera.fieldOfView = hookCamera.mainVCam.m_Lens.FieldOfView;
 
-			mainCamera.transform.rotation = Quaternion.Euler(-cameraPitch, cameraYaw, 0f);
+			mainCamera.transform.rotation = Quaternion.Euler(-cameraPitch - cameraShakePitchThisFrame, cameraYaw, 0f);
 
 			UpdateCollidedCameraPosition();
 
