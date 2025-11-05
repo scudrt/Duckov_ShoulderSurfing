@@ -15,6 +15,7 @@
           <HintPath>libs\0Harmony.dll</HintPath>
         </Reference>
         <Reference Include="$(DuckovPath)\Duckov_Data\Managed\Unity*" />
+        <ResourceFiles Include="Resources\**\*" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ShoulderSurfing\" />
@@ -22,9 +23,6 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="bin\Debug\netstandard2.1\ShoulderSurfing.dll" 
           DestinationFiles="F:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\ShoulderSurfing.dll" />
-    <ItemGroup>
-      <ResourceFiles Include="Resources\**\*" />
-    </ItemGroup>
     <Copy SourceFiles="@(ResourceFiles)" 
           DestinationFolder="F:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\%(RecursiveDir)" 
           SkipUnchangedFiles="true" />

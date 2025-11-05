@@ -21,7 +21,7 @@ public static class MiniMapCommon {
 		Vector3 vector;
 		// MiniMapSettings.TryGetMinimapPosition(LevelManager.Instance.MainCharacter.transform.position, out vector);
 		// return LevelManager.Instance.MainCharacter.transform.position - MiniMapSettings.Instance.CombinedCenter;
-		MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position, out vector);
+		MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position + LevelManager.Instance.MainCharacter.transform.forward * 1f - LevelManager.Instance.MainCharacter.transform.right, out vector);
 		return vector;
 		// return MiniMapSettings.Instance.CombinedCenter;
 		// return vector;
@@ -103,20 +103,8 @@ public static class MiniMapDisplaySetupExtender
 		MiniMapCommon.playerArrow = arrowObject;
 		Image arrowImage = arrowObject.AddComponent<Image>();
 
-		string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-		string path = Path.Combine(directoryName, "textures");
-		string text = Path.Combine(path, "arrow_1.png");
-		bool flag2 = File.Exists(text);
-		if (flag2)
-		{
-			byte[] data = File.ReadAllBytes(text);
-			Texture2D texture2D = new Texture2D(2, 2);
-			bool flag3 = texture2D.LoadImage(data);
-			if (flag3)
-			{
-				arrowImage.sprite = Sprite.Create(texture2D, new Rect(0f, 0f, (float)texture2D.width, (float)texture2D.height), new Vector2(0.5f, 0.5f), 100f);
-			}
-		}
+		arrowImage.sprite = Util.LoadSprite("arrow_1.png");
+
 		// 设置父对象为MiniMapDisplay实例
 		arrowObject.transform.SetParent(__instance.transform, false);
 		arrowObject.transform.SetAsLastSibling();

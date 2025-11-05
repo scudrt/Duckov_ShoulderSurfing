@@ -35,6 +35,7 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplaySetupExtender), "Setup");
 			PatchSingleExtender(typeof(MiniMapView), typeof(MiniMapViewOnSetZoomExtender), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
+			PatchSingleExtender(typeof(StaminaHUD), typeof(StaminaHUDExtender), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(Projectile), typeof(ProjectileExtender), "Init");
 		}
 		void CancelHarmonyExtender() {
@@ -46,6 +47,7 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "Setup");
 			UnpatchSingleExtender(typeof(MiniMapView), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(StaminaHUD), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(Projectile), "Init");
 		}
 		void Awake() {
@@ -53,14 +55,19 @@ namespace ShoulderSurfing {
 
 		void OnEnable() {
 			ApplyHarmonyExtenders();
-
 			ShoulderCamera.EnableTPSMode(this.gameObject);
 		}
 
-		void OnDisable() {
+		void OnDisable()
+		{
 			CancelHarmonyExtender();
-
+			StaminaHUDExtender.Unload();
 			ShoulderCamera.DisableTPSMode(this.gameObject);
 		}
+		
+		void Update()
+        {
+
+        }
 	}
 }
