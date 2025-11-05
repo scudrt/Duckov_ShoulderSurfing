@@ -138,6 +138,7 @@ namespace ShoulderSurfing {
 			shoulderCameraInitalized = false;
 		}
 
+
 		void UpdateCollidedCameraPosition() {
 			// Update camera position by follow target
 			Vector3 cameraForward = mainCamera.transform.forward;
@@ -198,7 +199,7 @@ namespace ShoulderSurfing {
 			}
 			// Temporary recoil switch
 			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
-				InputManagerExtender.globalShoulderRecoilMultiplier = 0.5f - InputManagerExtender.globalShoulderRecoilMultiplier;
+				ShoulderRecoilHelper.ShoulderRecoilMultiplier = 0.25f - ShoulderRecoilHelper.ShoulderRecoilMultiplier;
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
@@ -238,11 +239,12 @@ namespace ShoulderSurfing {
 				}
 			}
 			// Camera shaked by recoil
-			float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixel * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
+			float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixels * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
+			cameraPitch = Mathf.Clamp(cameraPitch + cameraShakePitchThisFrame, -70f, 70f);
 
 			mainCamera.fieldOfView = hookCamera.mainVCam.m_Lens.FieldOfView;
 
-			mainCamera.transform.rotation = Quaternion.Euler(-cameraPitch - cameraShakePitchThisFrame, cameraYaw, 0f);
+			mainCamera.transform.rotation = Quaternion.Euler(-cameraPitch, cameraYaw, 0f);
 
 			UpdateCollidedCameraPosition();
 
@@ -251,8 +253,6 @@ namespace ShoulderSurfing {
 				onCameraPosUpdate(hookCamera, this.target);
 			}
 		}
-
-		const KeyCode viewSwitchKeyCode = KeyCode.F7;
 
 		CharacterMainControl target;
 		InputManager inputManager;

@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <DuckovPath>F:\steam\steamapps\common\Escape from Duckov</DuckovPath>
+    <DuckovPath>D:\steam\steamapps\common\Escape from Duckov</DuckovPath>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -22,9 +22,9 @@
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="bin\Debug\netstandard2.1\ShoulderSurfing.dll" 
-          DestinationFiles="F:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\ShoulderSurfing.dll" />
+          DestinationFiles="D:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\ShoulderSurfing.dll" />
     <Copy SourceFiles="@(ResourceFiles)" 
-          DestinationFolder="F:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\%(RecursiveDir)" 
+          DestinationFolder="D:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\%(RecursiveDir)" 
           SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -11,6 +11,53 @@ using Unity.VisualScripting;
 using System.ComponentModel;
 using UnityEngine.UIElements;
 using ShoulderSurfing;
+using System.Transactions;
+
+public class ShoulderRecoilHelper {
+	public static ShoulderRecoilHelper Instance = new ShoulderRecoilHelper();
+
+	public static float ShoulderRecoilMultiplier = 0.25f;
+	public const int MaxRecoilList = 36;
+	public int rHead = 0;
+	public int rTail = 0;
+	public Vector2[] recoilVectors = new Vector2[MaxRecoilList];
+
+	public Vector2 recoilResult = Vector2.zero;
+	private float recoilPixels = 0f;
+
+	public void OnNewRecoil(Vector2 recoilDelta) {
+		bool isRecovering = recoilDelta.x <= 0f && recoilDelta.y <= 0f;
+		recoilDelta *= ShoulderRecoilMultiplier;
+		if (!isRecovering) {
+			// New bullet shoot
+			rHead = (rHead + 1) % MaxRecoilList;
+			if (rHead == rTail) {
+				recoilResult -= recoilVectors[rTail];
+				rTail = (rTail + 1) % MaxRecoilList;
+			}
+			recoilVectors[rHead] = recoilDelta;
+		}
+
+		recoilResult = Vector2.Max(Vector2.zero, recoilResult + recoilDelta);
+		recoilPixels = recoilResult.magnitude;
+
+		if (recoilPixels <= 1f) {
+			ResetRecoil();
+		}
+	}
+
+	public void ResetRecoil() {
+		rHead = 0;
+		rTail = 0;
+		recoilPixels = 0f;
+		recoilResult = Vector2.zero;
+		recoilVectors[0] = Vector2.zero;
+	}
+
+	public float GetCurrentRecoilPixels() {
+		return recoilPixels;
+	}
+}
 
 public static class InputManagerExtenderCommon {
 	public static FieldInfo getField(string fieldName) {
@@ -25,8 +72,7 @@ public static class InputManagerExtenderCommon {
 [HarmonyPatch(typeof(InputManager))]
 [HarmonyPatch("SetAimInputUsingMouse")]
 public static class InputManagerExtender {
-	public static float cameraShakePixel= 0f;
-	public static float globalShoulderRecoilMultiplier = 0.5f;
+	public static float cameraShakePixels= 0f;
 
 	static bool initialized = false;
 	static Vector2 CenterOfScreen;
@@ -40,9 +86,6 @@ public static class InputManagerExtender {
 	static bool needResetRecoil = true;
 	static Vector2 recoilAccum = Vector2.zero;
 	static Vector2 targetMousePos = Vector2.zero;
-	static float maxVerticalRecoil;
-
-	static float camToNearPlane = 0f;
 
 	public static bool Prefix(InputManager __instance, ref Vector2 mouseDelta) {
 		if (!initialized) {
@@ -69,27 +112,32 @@ public static class InputManagerExtender {
 		isCurrentlyInputActive = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
 		if (!isCurrentlyInputActive) {
 			needResetRecoil = true;
-			cameraShakePixel = 0f;
+			cameraShakePixels = 0f;
 			return true;
 		}
 		if (needResetRecoil && isCurrentlyInputActive) {
 			needResetRecoil = false;
-			cameraShakePixel = 0f;
+			cameraShakePixels = 0f;
 			recoilAccum = Vector2.zero;
+			ShoulderRecoilHelper.Instance.ResetRecoil();
 		}
 
 		CenterOfScreen.x = Screen.width  * 0.5f;
 		CenterOfScreen.y = Screen.height * 0.5f;
-		maxVerticalRecoil = Screen.height * 0.2f;
 
+		bool playerTryControlRecoil = mouseDelta.x != 0f || mouseDelta.y != 0f;
 		// Make cursor always be on the center of screen
-		targetMousePos = CenterOfScreen + Vector2.up * cameraShakePixel;
-		_aimMousePosCacheField.SetValue(__instance, targetMousePos);
-		mouseDelta = Vector2.zero;
-		/* origin code
-		mouseDelta = (targetMousePos - LevelManager.Instance.InputManager.AimScreenPoint)
-			* 10f / OptionsManager.MouseSensitivity;
-		*/
+		targetMousePos = CenterOfScreen;
+
+		if (playerTryControlRecoil) {
+			// Set mouse delta not zero to refresh recoil recover position
+			mouseDelta = (targetMousePos - LevelManager.Instance.InputManager.AimScreenPoint)
+				* 10f / OptionsManager.MouseSensitivity;
+		} else {
+			// Set mouse delta zero to keep recoil recover position
+			_aimMousePosCacheField.SetValue(__instance, targetMousePos);
+			mouseDelta = Vector2.zero;
+		}
 		return true;
 	}
 
@@ -103,24 +151,31 @@ public static class InputManagerExtender {
 
 		// Split recoil into camera shake and aim shake
 		Vector2 recoilThisFrame = __instance.AimScreenPoint - targetMousePos;
+#if true
+		cameraShakePixels = recoilThisFrame.magnitude * MathF.Sign(recoilThisFrame.x) * ShoulderRecoilHelper.ShoulderRecoilMultiplier;
+		// ShoulderRecoilHelper.Instance.OnNewRecoil(recoilThisFrame);
+		// cameraShakePixels = ShoulderRecoilHelper.Instance.GetCurrentRecoilPixels();
+#else
+
 		if (recoilThisFrame.x <= 0f && recoilThisFrame.y <= 0f) {
 			// Recoil recovering, recover it faster
 			recoilThisFrame *= 1f;
 		} else {
 			// Recoiling with fire, accelerate slower
-			recoilThisFrame *= globalShoulderRecoilMultiplier;
+			recoilThisFrame *= ShoulderRecoilHelper.ShoulderRecoilMultiplier;
 		}
 		recoilAccum += recoilThisFrame;
 		recoilAccum = Vector2.Max(Vector2.zero, recoilAccum);
 		float lenOfRecoilOffset = recoilAccum.magnitude;
 		if (lenOfRecoilOffset <= 1f) {
 			recoilAccum = Vector2.zero;
-			cameraShakePixel = 0f;
+			cameraShakePixels = 0f;
 		} else {
 			// Limit the max vertical recoil offset
-			cameraShakePixel = Mathf.Min(maxVerticalRecoil, lenOfRecoilOffset);
-			recoilAccum = recoilAccum.normalized * cameraShakePixel;
+			cameraShakePixels = MathF.Min(lenOfRecoilOffset,Screen.height * 0.2f);
+			recoilAccum = recoilAccum.normalized * cameraShakePixels;
 		}
+#endif
 
 		// Aim after calculating recoil
 		RaycastHit hitinfo;
