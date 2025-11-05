@@ -194,7 +194,7 @@ public class CustomStaminaHUD : MonoBehaviour
         // 调整饱和度（模拟原版的颜色处理）
         float h, s, v;
         Color.RGBToHSV(targetColor, out h, out s, out v);
-        s = 0.8f; // 稍微降低饱和度
+        s = 0.4f; // 稍微降低饱和度
         v = 1f;
         
         fillImage.color = Color.HSVToRGB(h, s, v);

@@ -16,15 +16,23 @@ using UnityEngine.UI;
 public static class MiniMapCommon {
 	public static bool isMapRotateWithCamera = false;
 	public static GameObject playerArrow;
-	public static Vector3 GetPlayerMinimapPosition()
+	public static Vector3 GetPlayerMinimapLocalPosition()
 	{
 		Vector3 vector;
 		// MiniMapSettings.TryGetMinimapPosition(LevelManager.Instance.MainCharacter.transform.position, out vector);
 		// return LevelManager.Instance.MainCharacter.transform.position - MiniMapSettings.Instance.CombinedCenter;
-		MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position + LevelManager.Instance.MainCharacter.transform.forward * 1f - LevelManager.Instance.MainCharacter.transform.right, out vector);
+		// MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position + LevelManager.Instance.MainCharacter.transform.forward * 1f - LevelManager.Instance.MainCharacter.transform.right, out vector);
+		MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position + LevelManager.Instance.MainCharacter.transform.forward * 1.08f - LevelManager.Instance.MainCharacter.transform.right * 0.7f, out vector);
 		return vector;
 		// return MiniMapSettings.Instance.CombinedCenter;
 		// return vector;
+	}
+
+	public static Vector3 GetPlayerMinimapGlobalPosition(Transform minimapDisplayTrans)
+	{
+		Vector3 vector;
+		MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position, out vector);
+		return minimapDisplayTrans.localToWorldMatrix.MultiplyPoint(vector) + new Vector3(0, 28, 0);
 	}
 	
 	public static Quaternion GetPlayerMinimapRotation()
@@ -85,40 +93,53 @@ public static class MiniMapDisplayExtender
 [HarmonyPatch("Setup")]
 public static class MiniMapDisplaySetupExtender
 {
+	public static GameObject currentDisplay;
 	public static void Postfix(MiniMapDisplay __instance)
 	{
-
+		currentDisplay = __instance.gameObject;
 		Vector3 pos = __instance.GetComponent<RectTransform>().position;
 		if (MiniMapCommon.playerArrow != null)
 		{
 			// var image = MiniMapCommon.playerArrow.GetComponent<Image>();
 			// image.GetComponent<RectTransform>().sizeDelta = new Vector2(0.001f, 0.001f) * image.sprite.texture.width * MiniMapSettings.Instance.PixelSize;
-			MiniMapCommon.playerArrow.transform.localPosition = MiniMapCommon.GetPlayerMinimapPosition();
+			// MiniMapCommon.playerArrow.transform.localPosition = MiniMapCommon.GetPlayerMinimapPosition();
+			MiniMapCommon.playerArrow.transform.position = MiniMapCommon.GetPlayerMinimapGlobalPosition(currentDisplay.transform);
+			// MiniMapCommon.playerArrow.transform.localScale = Vector3.one * 0.7f / __instance.transform.localScale.x;
 			MiniMapCommon.playerArrow.transform.SetAsLastSibling();
 			MiniMapCommon.playerArrow.transform.rotation = MiniMapCommon.GetPlayerMinimapRotation();
 			return;
 		}
 		// 创建新的GameObject并添加Image组件
-		GameObject arrowObject = new GameObject("ArrowImage");
+		GameObject arrowObject = new GameObject("PlayerImage");
 		MiniMapCommon.playerArrow = arrowObject;
 		Image arrowImage = arrowObject.AddComponent<Image>();
+		GameObject viewRangeGameobject = new GameObject("ViewRangeImage");
+		Image rangeImage = viewRangeGameobject.AddComponent<Image>();
 
-		arrowImage.sprite = Util.LoadSprite("arrow_1.png");
+		arrowImage.sprite = Util.LoadSprite("player.png");
+		rangeImage.sprite = Util.LoadSprite("range.png");
 
 		// 设置父对象为MiniMapDisplay实例
+		viewRangeGameobject.transform.SetParent(arrowObject.transform, false);
+		viewRangeGameobject.transform.localPosition = new Vector3(0, 32, 0);
+		rangeImage.rectTransform.pivot = new Vector2(0.5f, 0f);
+		rangeImage.color = new Color(1, 1, 1, 0.5f);
+		viewRangeGameobject.transform.localScale = Vector3.one * 2f;
+
 		arrowObject.transform.SetParent(__instance.transform, false);
 		arrowObject.transform.SetAsLastSibling();
-		MiniMapCommon.playerArrow.transform.localPosition = MiniMapCommon.GetPlayerMinimapPosition();
-		// arrowObject.transform.position = MiniMapCommon.GetPlayerMinimapPosition();
+		// MiniMapCommon.playerArrow.transform.localPosition = MiniMapCommon.GetPlayerMinimapPosition();
+		MiniMapCommon.playerArrow.transform.position = MiniMapCommon.GetPlayerMinimapGlobalPosition(currentDisplay.transform);
+		MiniMapCommon.playerArrow.transform.localScale = Vector3.one * 0.7f / __instance.transform.localScale.x;
 		RectTransform rectTransform = arrowImage.GetComponent<RectTransform>();
 		if (rectTransform != null)
 		{
-			rectTransform.sizeDelta = new Vector2(5, 5);
+			rectTransform.sizeDelta = new Vector2(64, 64);
 			// rectTransform.sizeDelta = new Vector2(0.001f, 0.001f) * arrowImage.sprite.texture.width * MiniMapSettings.Instance.PixelSize;
 			// 确保锚点和轴心点设置正确
 			rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
 			rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-			rectTransform.pivot = new Vector2(0.5f, 0f);
+			rectTransform.pivot = new Vector2(0.5f, 0.5f);
 		}
 	}
 
@@ -131,9 +152,9 @@ public static class MiniMapViewOnSetZoomExtender {
 	{
 		if (MiniMapCommon.playerArrow != null)
 		{
-			var scaleInvert = 1f / scale;
-			scaleInvert = Mathf.Clamp(scaleInvert, 1f, 2f);
-			MiniMapCommon.playerArrow.transform.localScale = Vector3.one * scaleInvert;
+			MiniMapCommon.playerArrow.transform.localScale = Vector3.one * 0.7f / MiniMapDisplaySetupExtender.currentDisplay.transform.localScale.x;
+			MiniMapCommon.playerArrow.transform.position = MiniMapCommon.GetPlayerMinimapGlobalPosition(MiniMapDisplaySetupExtender.currentDisplay.transform);
+			// MiniMapCommon.playerArrow.transform.localPosition = MiniMapCommon.GetPlayerMinimapPosition();
 		}
 	}
 
