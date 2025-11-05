@@ -33,6 +33,8 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(HealthBar), typeof(HealthBarOnTargetHurtExtender), "OnTargetHurt", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapCompass), typeof(MiniMapCompassExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
+			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplaySetupExtender), "Setup");
+			PatchSingleExtender(typeof(MiniMapView), typeof(MiniMapViewOnSetZoomExtender), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(Projectile), typeof(ProjectileExtender), "Init");
 		}
 		void CancelHarmonyExtender() {
@@ -42,6 +44,8 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(HealthBar), "OnTargetHurt", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapCompass), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(MiniMapDisplay), "Setup");
+			UnpatchSingleExtender(typeof(MiniMapView), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(Projectile), "Init");
 		}
 		void Awake() {
