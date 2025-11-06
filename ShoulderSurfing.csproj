@@ -4,17 +4,17 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <DuckovPath>D:\steam\steamapps\common\Escape from Duckov</DuckovPath>
+    <DuckovPath>F:\steam\steamapps\common\Escape from Duckov\Duckov_Data</DuckovPath>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\TeamSoda.*" />
-        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\Cinemachine.dll" />
-        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\ItemStatsSystem.dll" />
+        <Reference Include="$(DuckovPath)\Managed\TeamSoda.*" />
+        <Reference Include="$(DuckovPath)\Managed\Cinemachine.dll" />
+        <Reference Include="$(DuckovPath)\Managed\ItemStatsSystem.dll" />
         <Reference Include="0Harmony">
           <HintPath>libs\0Harmony.dll</HintPath>
         </Reference>
-        <Reference Include="$(DuckovPath)\Duckov_Data\Managed\Unity*" />
+        <Reference Include="$(DuckovPath)\Managed\Unity*" />
         <ResourceFiles Include="Resources\**\*" />
   </ItemGroup>
   <ItemGroup>
@@ -22,9 +22,9 @@
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="bin\Debug\netstandard2.1\ShoulderSurfing.dll" 
-          DestinationFiles="D:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\ShoulderSurfing.dll" />
+          DestinationFiles="$(DuckovPath)\Mods\ShoulderSurfing\ShoulderSurfing.dll" />
     <Copy SourceFiles="@(ResourceFiles)" 
-          DestinationFolder="D:\steam\steamapps\common\Escape from Duckov\Duckov_Data\Mods\ShoulderSurfing\%(RecursiveDir)" 
+          DestinationFolder="$(DuckovPath)\Mods\ShoulderSurfing\%(RecursiveDir)" 
           SkipUnchangedFiles="true" />
   </Target>
 </Project>

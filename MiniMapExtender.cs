@@ -13,7 +13,8 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-public static class MiniMapCommon {
+public static class MiniMapCommon
+{
 	public static bool isMapRotateWithCamera = false;
 	public static GameObject playerArrow;
 	public static Vector3 GetPlayerMinimapLocalPosition()
@@ -34,13 +35,21 @@ public static class MiniMapCommon {
 		MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position, out vector);
 		return minimapDisplayTrans.localToWorldMatrix.MultiplyPoint(vector) + new Vector3(0, 28, 0);
 	}
-	
+
 	public static Quaternion GetPlayerMinimapRotation()
-    {
+	{
 		// Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.up.ProjectOntoPlane(Vector3.up);
 		Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
 		float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
 		return Quaternion.Euler(0f, 0f, -currentMapZRotation);
+	}
+
+	public static Quaternion GetCameraRotation()
+    {
+		// Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.up.ProjectOntoPlane(Vector3.up);
+		Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
+		float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
+		return Quaternion.Euler(0f, 0f, currentMapZRotation);
     }
 }
 
@@ -79,7 +88,7 @@ public static class MiniMapDisplayExtender
 	{
 		if (MiniMapCommon.isMapRotateWithCamera)
 		{
-			__instance.transform.localRotation = MiniMapCommon.GetPlayerMinimapRotation();
+			__instance.transform.localRotation = MiniMapCommon.GetCameraRotation();
 		}
 		else
 		{
@@ -106,7 +115,7 @@ public static class MiniMapDisplaySetupExtender
 			MiniMapCommon.playerArrow.transform.position = MiniMapCommon.GetPlayerMinimapGlobalPosition(currentDisplay.transform);
 			// MiniMapCommon.playerArrow.transform.localScale = Vector3.one * 0.7f / __instance.transform.localScale.x;
 			MiniMapCommon.playerArrow.transform.SetAsLastSibling();
-			MiniMapCommon.playerArrow.transform.rotation = MiniMapCommon.GetPlayerMinimapRotation();
+			MiniMapCommon.playerArrow.transform.localRotation = MiniMapCommon.GetPlayerMinimapRotation();
 			return;
 		}
 		// 创建新的GameObject并添加Image组件
