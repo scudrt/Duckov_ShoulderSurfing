@@ -34,7 +34,7 @@ public static class HealthBarUpdatePositionExtender {
 			backgroundField = typeof(HealthBar).GetField("deathIndicator", BindingFlags.NonPublic | BindingFlags.Instance);
 		}
 		// Disable mod in origin game view
-		if (ShoulderCamera.shoulderCameraToggled == false) {
+		if (ShoulderCamera.shoulderCameraInitalized == false) {
 			if (HealthBarCommon.AffectedInstances.Count > 0) {
 				foreach (HealthBar instance in HealthBarCommon.AffectedInstances) {
 					if (instance == null) {
@@ -90,7 +90,7 @@ public static class HealthBarUpdatePositionExtender {
 [HarmonyPatch("OnTargetDead")]
 public static class HealthBarOnTargetDeadExtender {
 	public static void Postfix(HealthBar __instance) {
-		if (ShoulderCamera.shoulderCameraToggled == false) {
+		if (ShoulderCamera.shoulderCameraInitalized == false) {
 			return;
 		}
 		HealthBarCommon.LastTimeToHurt.Remove(__instance);
@@ -102,9 +102,22 @@ public static class HealthBarOnTargetDeadExtender {
 [HarmonyPatch("OnTargetHurt")]
 public static class HealthBarOnTargetHurtExtender {
 	public static void Postfix(HealthBar __instance) {
-		if (ShoulderCamera.shoulderCameraToggled == false) {
+		if (ShoulderCamera.shoulderCameraInitalized == false) {
 			return;
 		}
 		HealthBarCommon.LastTimeToHurt[__instance] = Time.time;
+	}
+}
+
+[HarmonyPatch(typeof(HealthBar))]
+[HarmonyPatch("CheckInFrame")]
+public static class HealthBarCheckInFrameExtender {
+	public static bool Prefix(HealthBar __instance, ref bool __result) {
+		if (ShoulderCamera.shoulderCameraInitalized == false) {
+			return true;
+		}
+
+		__result = __instance.target != null;
+		return false;
 	}
 }

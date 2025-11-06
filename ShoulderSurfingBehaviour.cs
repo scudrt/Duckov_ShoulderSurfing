@@ -3,6 +3,7 @@ using System.Reflection;
 using Duckov.UI;
 using Duckov.MiniMaps;
 using Duckov.MiniMaps.UI;
+using Duckov.MiniGames;
 
 namespace ShoulderSurfing {
 
@@ -31,11 +32,14 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(HealthBar), typeof(HealthBarUpdatePositionExtender), "UpdatePosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(HealthBar), typeof(HealthBarOnTargetDeadExtender), "OnTargetDead", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(HealthBar), typeof(HealthBarOnTargetHurtExtender), "OnTargetHurt", BindingFlags.Instance | BindingFlags.NonPublic);
+			PatchSingleExtender(typeof(HealthBar), typeof(HealthBarCheckInFrameExtender), "CheckInFrame", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapCompass), typeof(MiniMapCompassExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplaySetupExtender), "Setup");
 			PatchSingleExtender(typeof(MiniMapView), typeof(MiniMapViewOnSetZoomExtender), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(StaminaHUD), typeof(StaminaHUDExtender), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
+			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameStartExtender), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
+			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameEndExtender), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(Projectile), typeof(ProjectileExtender), "Init");
 		}
 		void CancelHarmonyExtender() {
@@ -43,11 +47,14 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(HealthBar), "UpdatePosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(HealthBar), "OnTargetDead", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(HealthBar), "OnTargetHurt", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(HealthBar), "CheckInFrame", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapCompass), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "Setup");
 			UnpatchSingleExtender(typeof(MiniMapView), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(StaminaHUD), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(Projectile), "Init");
 		}
 		void Awake() {

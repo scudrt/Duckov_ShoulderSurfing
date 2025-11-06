@@ -13,9 +13,11 @@ namespace ShoulderSurfing {
 		public static bool shoulderCameraToggled = false;
 		public static bool shoulderCameraInitalized = false;
 
+		public static bool isMiniGameEnabled = false;
+
 		public static void EnableTPSMode(GameObject parentMod) {
 			parentMod.AddComponent<ShoulderCamera>();
-			OcclusionFadeManager.FadeEnabled = true;
+			// OcclusionFadeManager.FadeEnabled = true;
 		}
 
 		public static void DisableTPSMode(GameObject parentMod) {
@@ -106,7 +108,7 @@ namespace ShoulderSurfing {
 			Debug.Log("Shoulder Camera initialized");
 
 			shoulderCameraInitalized = true;
-			SetOcclusionFadeStatus(false);
+			// SetOcclusionFadeStatus(false);
 		}
 
 
@@ -185,7 +187,7 @@ namespace ShoulderSurfing {
 			Debug.Log("Shoulder Camera deinitialized");
 
 			shoulderCameraInitalized = false;
-			SetOcclusionFadeStatus(true);
+			// SetOcclusionFadeStatus(true);
 		}
 
 
@@ -228,10 +230,11 @@ namespace ShoulderSurfing {
 				return;
 			}
 
-			bool otherModeInterupted = CameraMode.Active || (BuilderView.Instance && BuilderView.Instance.open);
+			// Check if there are any events interupting shoulder camera view
+			bool otherModeInterupted = CameraMode.Active || (BuilderView.Instance && BuilderView.Instance.open) || isMiniGameEnabled;
 			if (otherModeInterupted) {
 				if (shoulderCameraInitalized) {
-					OnShoulderCameraDisable(true);
+					OnShoulderCameraDisable(CameraMode.Active);
 				}
 				return;
 			}
@@ -249,7 +252,7 @@ namespace ShoulderSurfing {
 			}
 			// Temporary recoil switch
 			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
-				ShoulderRecoilHelper.ShoulderRecoilMultiplier = 0.25f - ShoulderRecoilHelper.ShoulderRecoilMultiplier;
+				InputManagerExtenderCommon.ShoulderRecoilMultiplier = 0.36f - InputManagerExtenderCommon.ShoulderRecoilMultiplier;
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
