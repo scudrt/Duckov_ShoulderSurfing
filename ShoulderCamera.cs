@@ -15,6 +15,7 @@ namespace ShoulderSurfing {
 
 		public static void EnableTPSMode(GameObject parentMod) {
 			parentMod.AddComponent<ShoulderCamera>();
+			OcclusionFadeManager.FadeEnabled = true;
 		}
 
 		public static void DisableTPSMode(GameObject parentMod) {
@@ -43,11 +44,14 @@ namespace ShoulderSurfing {
 			}
 		}
 
-		public void OnShoulderCameraEnable() {
-			if (shoulderCameraInitalized) {
+		public void OnShoulderCameraEnable()
+		{
+			if (shoulderCameraInitalized)
+			{
 				return;
 			}
-			if (hookCamera == null || hookCamera.renderCamera == null) {
+			if (hookCamera == null || hookCamera.renderCamera == null)
+			{
 				return;
 			}
 
@@ -59,13 +63,16 @@ namespace ShoulderSurfing {
 
 			mainCamera = hookCamera.renderCamera; // hookCamera.mainVCam;
 
-			if (hookCamera.mianCameraArm != null) {
+			if (hookCamera.mianCameraArm != null)
+			{
 				hookCamera.mianCameraArm.enabled = false;
 			}
-            if (hookCamera.brain != null) {
+			if (hookCamera.brain != null)
+			{
 				hookCamera.brain.enabled = false;
 			}
-			if (hookCamera.mainVCam != null) {
+			if (hookCamera.mainVCam != null)
+			{
 				hookCamera.mainVCam.enabled = false;
 			}
 
@@ -75,17 +82,21 @@ namespace ShoulderSurfing {
 			originDOF2Active.Clear();
 			originMotionBlur2Active.Clear();
 			// Removing all depth of field effects in the game
-			foreach (Volume volume in FindObjectsOfType<Volume>(true)) {
-				if (volume && volume.profile) {
+			foreach (Volume volume in FindObjectsOfType<Volume>(true))
+			{
+				if (volume && volume.profile)
+				{
 					DepthOfField depthOfField = null;
 					MotionBlur motionBlur = null;
 					volume.profile.TryGet<DepthOfField>(out depthOfField);
 					volume.profile.TryGet<MotionBlur>(out motionBlur);
-					if (depthOfField != null) {
+					if (depthOfField != null)
+					{
 						originDOF2Active[depthOfField] = depthOfField.active;
 						depthOfField.active = false;
 					}
-					if (motionBlur != null) {
+					if (motionBlur != null)
+					{
 						originMotionBlur2Active[motionBlur] = motionBlur.active;
 						motionBlur.active = false;
 					}
@@ -95,8 +106,46 @@ namespace ShoulderSurfing {
 			Debug.Log("Shoulder Camera initialized");
 
 			shoulderCameraInitalized = true;
+			SetOcclusionFadeStatus(false);
 		}
 
+
+		// 暂时没有用
+		public void SetCullingMode(CullMode mode)
+		{
+			// 更新所有材质
+			Renderer[] renderers = FindObjectsOfType<Renderer>();
+			foreach (Renderer renderer in renderers)
+			{
+				Material[] materials = renderer.materials;
+				foreach (Material material in materials)
+				{
+					if (material.HasProperty("_Cull"))
+					{
+						material.SetInt("_Cull", (int)mode);
+					}
+				}
+			}
+
+			Debug.Log($"剔除模式已设置为: {mode}");
+		}
+
+		void SetOcclusionFadeStatus(bool enabled)
+        {
+			OcclusionFadeManager.FadeEnabled = enabled;
+			OcclusionFadeManager.Instance.aimOcclusionFadeChecker.gameObject.SetActive(true);
+			OcclusionFadeManager.Instance.characterOcclusionFadeChecker.gameObject.SetActive(true);
+
+			// if (!enabled)
+			// {
+			// 	SetCullingMode(CullMode.Off);
+			// }
+            // else
+            // {
+			// 	SetCullingMode(CullMode.Back);
+            // }
+        }
+		
 		void OnShoulderCameraDisable(bool switchToCameraMode = false) {
 			if (!shoulderCameraInitalized) {
 				return;
@@ -136,6 +185,7 @@ namespace ShoulderSurfing {
 			Debug.Log("Shoulder Camera deinitialized");
 
 			shoulderCameraInitalized = false;
+			SetOcclusionFadeStatus(true);
 		}
 
 
