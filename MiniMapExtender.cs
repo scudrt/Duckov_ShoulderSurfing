@@ -17,7 +17,7 @@ public static class MiniMapCommon
 {
 	public static bool isMapRotateWithCamera = false;
 	public static GameObject playerArrow;
-	public static float mapIndicatorAlpha = 0f;
+	public static float mapIndicatorAlpha = 0.5f;
 
 	public static Vector3 GetPlayerMinimapLocalPosition()
 	{

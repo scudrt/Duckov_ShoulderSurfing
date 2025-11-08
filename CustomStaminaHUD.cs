@@ -301,7 +301,7 @@ public class StaminaHUDExtender
     public static GameObject modObject;
     public static GameObject staminaHUD;
 
-    public static Vector2 staminaHUDOffset = Vector2.zero;
+    public static Vector2 staminaHUDOffset = new Vector2(0.28f, 0.26f);
     public static float staminaHUDScale = 1f;
 
     public static void UpdateCustomHUDOffset()

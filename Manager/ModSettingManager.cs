@@ -32,9 +32,10 @@ namespace ShoulderSurfing
 
             settingObjects = new List<AbstractSettingObject>()
             {
+                /*
                 new SettingObject<bool>().SetName("ShoulderCameraToggle")
-                    .SetDescCN("越肩视角开关")
-                    .SetDescEN("ShoulderCameraToggle")
+                    .SetDescCN("开关越肩视角")
+                    .SetDescEN("Shoulder Camera Toggle")
                     .SetGetValueFunc(() =>
                     {
                         return ShoulderCamera.shoulderCameraToggled;
@@ -58,8 +59,9 @@ namespace ShoulderSurfing
                             thisSettingObject.valueChangeFunc
                         );
                     }),
+                */
                 new SettingObject<KeyCode>().SetName("ShoulderCameraToggleKey")
-                    .SetDescCN("切换越肩视角按键")
+                    .SetDescCN("切换视角快捷键")
                     .SetDescEN("Toggle ShoulderCamera Key")
                     .SetGetValueFunc(() =>
                     {
@@ -83,61 +85,135 @@ namespace ShoulderSurfing
                             thisSettingObject.valueChangeFunc
                         );
                     }),
-                // new SettingObject<bool>().SetName("ShoulderPos")
-                //     .SetDescCN("左肩机位")
-                //     .SetDescEN("IsLeftShoulder")
-                //     .SetGetValueFunc(() =>
-                //     {
-                //         return ShoulderCamera.IsLeftShoulder;
-                //     })
-                //     .SetLoadFunc((thisSettingObject) =>
-                //     {
-                //         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : ShoulderCamera.IsLeftShoulder;
-                //         ShoulderCamera.IsLeftShoulder = value;
-                //     })
-                //     .SetValueChangeFunc((value) =>
-                //     {
-                //         ShoulderCamera.IsLeftShoulder = value;
-                //     })
-                //     .SetRegisterFunc((thisSettingObject) =>
-                //     {
-                //         ModSettingAPI.AddToggle(
-                //             thisSettingObject.name,
-                //             isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
-                //             thisSettingObject.getValueFunc(),
-                //             thisSettingObject.valueChangeFunc
-                //         );
-                //     }),
-                // new SettingObject<float>().SetName("Fov")
-                //     .SetDescCN("Fov")
-                //     .SetDescEN("Fov")
-                //     .SetGetValueFunc(() =>
-                //     {
-                //         return ShoulderCamera.fov;
-                //     })
-                //     .SetValueChangeFunc((value) =>
-                //     {
-                //         ShoulderCamera.fov = value;
-                //     })
-                //     .SetLoadFunc((thisSettingObject) =>
-                //     {
-                //         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : ShoulderCamera.fov;
-                //         ShoulderCamera.fov = value;
-                //     })
-                //     .SetRegisterFunc((thisSettingObject) =>
-                //     {
-                //         ModSettingAPI.AddSlider(
-                //             thisSettingObject.name,
-                //             isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
-                //             thisSettingObject.getValueFunc(),
-                //             new Vector2(0, 1),
-                //             thisSettingObject.valueChangeFunc,
-                //             2
-                //         );
-                //     }),
-
-                new SettingObject<float>().SetName("RecoilMultiplier")
-                    .SetDescCN("后坐力大小")
+				new SettingObject<KeyCode>().SetName("ShoulderSideKeySingle")
+					.SetDescCN("左右肩切换快捷键")
+					.SetDescEN("Shoulder Side Switch Key")
+					.SetGetValueFunc(() =>
+					{
+                        return ShoulderCamera.shoulderSideKeySingle;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderSideKeySingle;
+						ShoulderCamera.shoulderSideKeySingle = value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.shoulderSideKeySingle = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddKeybinding(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+				new SettingObject<KeyCode>().SetName("ShoulderLeftSideKey")
+					.SetDescCN("左肩切换快捷键")
+					.SetDescEN("Shoulder Left Side Key")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.shoulderLeftSideKey;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderLeftSideKey;
+						ShoulderCamera.shoulderLeftSideKey = value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.shoulderLeftSideKey = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddKeybinding(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+				new SettingObject<KeyCode>().SetName("ShoulderRightSideKey")
+					.SetDescCN("右肩切换快捷键")
+					.SetDescEN("Shoulder Right Side Key")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.shoulderRightSideKey;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderRightSideKey;
+						ShoulderCamera.shoulderRightSideKey = value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.shoulderRightSideKey = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddKeybinding(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+				new SettingObject<int>().SetName("Fov")
+					.SetDescCN("视野范围(FOV)")
+					.SetDescEN("Field Of View")
+					.SetGetValueFunc(() =>
+					{
+						return (int)ShoulderCamera.FOV;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.FOV = value;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.FOV;
+						ShoulderCamera.FOV = (int)value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddSlider(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							50, 114,
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+				new SettingObject<int>().SetName("RenderingDistance")
+					.SetDescCN("渲染距离")
+					.SetDescEN("Rendering Distance")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.renderDistance;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.renderDistance = value;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.renderDistance;
+						ShoulderCamera.renderDistance = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddSlider(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							30, 300,
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+				new SettingObject<float>().SetName("RecoilMultiplier")
+                    .SetDescCN("后坐力大小系数")
                     .SetDescEN("RecoilMultiplier")
                     .SetGetValueFunc(() =>
                     {
@@ -158,7 +234,7 @@ namespace ShoulderSurfing
                             thisSettingObject.name,
                             isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
                             thisSettingObject.getValueFunc(),
-                            new Vector2(0, 233),
+                            new Vector2(0, 1),
                             thisSettingObject.valueChangeFunc,
                             2
                         );

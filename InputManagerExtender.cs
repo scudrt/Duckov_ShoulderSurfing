@@ -8,7 +8,8 @@ using System.Reflection;
 using ShoulderSurfing;
 
 public static class InputManagerExtenderCommon {
-	public static float ShoulderRecoilMultiplier = 0.36f;
+	public const float DefaultShoulderRecoilMultiplier = 0.36f;
+	public static float ShoulderRecoilMultiplier = DefaultShoulderRecoilMultiplier;
 	public static FieldInfo getField(string fieldName) {
 		return typeof(InputManager).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
 	}

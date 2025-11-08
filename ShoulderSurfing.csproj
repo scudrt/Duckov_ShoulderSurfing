@@ -33,7 +33,7 @@
     <Folder Include="ShoulderSurfing\" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="bin\Debug\netstandard2.1\ShoulderSurfing.dll" 
+    <Copy SourceFiles="bin\Release\netstandard2.1\ShoulderSurfing.dll" 
           DestinationFiles="$(DuckovPath)\Mods\ShoulderSurfing\ShoulderSurfing.dll" />
     <Copy SourceFiles="libs\0Harmony.dll" 
           DestinationFiles="$(DuckovPath)\Mods\ShoulderSurfing\0Harmony.dll" />

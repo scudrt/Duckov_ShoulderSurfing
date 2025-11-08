@@ -15,7 +15,34 @@ namespace ShoulderSurfing {
 		public static bool shoulderCameraInitalized = false;
 
 		public static bool isMiniGameEnabled = false;
-		private static float fov = 75f;
+		public static Vector3 ShoulderCameraOffset = new Vector3(1f, 1.25f, -2.8f);
+
+		public static int renderDistance {
+			get {
+				return __renderDistance;
+			}
+			set {
+				__renderDistance = value;
+				if (Instance) {
+					Instance.RefreshRenderDistance();
+				}
+			}
+		}
+		private static int __renderDistance = 80;
+
+		public static float FOV {
+			get {
+				return __FOV;
+			}
+			set {
+				__FOV = value;
+				if (Instance) {
+					Instance.RefreshFOV();
+				}
+			}
+		}
+		private static float __FOV= 72f;
+		public static float adsFOV = 40f;
 
 		private static bool _isLeftShoulder = false;
 		public static bool IsLeftShoulder
@@ -24,24 +51,26 @@ namespace ShoulderSurfing {
 			set
 			{
 				_isLeftShoulder = value;
-				// if (value) {
-				// 	// 左肩机位
-				// 	originDefaultFOV = hookCamera.defaultFOV;
-				// 	originAdsFOV = hookCamera.adsFOV;
-				// 	hookCamera.defaultFOV = 75f;
-				// 	hookCamera.adsFOV = 45f;
-				// } else {
-				// 	// 右肩机位
-				// 	hookCamera.defaultFOV = originDefaultFOV;
-				// 	hookCamera.adsFOV = originAdsFOV;
-				// }
 			}
 		}
 		
-		public static KeyCode switchShoulderCameraKey = KeyCode.Period;
+		public static KeyCode switchShoulderCameraKey = KeyCode.F7;
+		public static KeyCode shoulderSideKeySingle = KeyCode.LeftAlt;
+		public static KeyCode shoulderLeftSideKey = KeyCode.Q;
+		public static KeyCode shoulderRightSideKey = KeyCode.E;
+
+		public static ShoulderCamera Instance {
+			get {
+				return __Instance;
+			}
+			set {
+				__Instance = value;
+			}
+		}
+		private static ShoulderCamera __Instance;
 
 		public static void EnableTPSMode(GameObject parentMod) {
-			parentMod.AddComponent<ShoulderCamera>();
+			__Instance = parentMod.AddComponent<ShoulderCamera>();
 			// OcclusionFadeManager.FadeEnabled = true;
 		}
 
@@ -52,6 +81,7 @@ namespace ShoulderSurfing {
 				me.OnShoulderCameraDisable();
 				Destroy(me);
 			}
+			__Instance = null;
 		}
 
 		public void RehookCamera() {
@@ -91,8 +121,6 @@ namespace ShoulderSurfing {
 		}
 
 		public void DisableAllDOF() {
-			Debug.Log("Try to disable all DOF");
-
 			// Disable all dof for shoulder camera
 			var volumes = FindObjectsOfType<Volume>();
 			foreach (var volume in volumes) {
@@ -105,6 +133,28 @@ namespace ShoulderSurfing {
 					dof.active = false;
 				}
 			}
+		}
+
+		public void RefreshFOV() {
+			if (!shoulderCameraInitalized) {
+				return;
+			}
+			if (!hookCamera) {
+				return;
+			}
+
+			hookCamera.defaultFOV = ShoulderCamera.FOV;
+		}
+
+		public void RefreshRenderDistance() {
+			if (!shoulderCameraInitalized) {
+				return;
+			}
+			if (!hookCamera || !mainCamera) {
+				return;
+			}
+
+			mainCamera.farClipPlane = renderDistance;
 		}
 
 		public void OnShoulderCameraEnable()
@@ -121,8 +171,8 @@ namespace ShoulderSurfing {
 			originDefaultFOV = hookCamera.defaultFOV;
 			originAdsFOV = hookCamera.adsFOV;
 			// Initialize game camera FOV
-			hookCamera.defaultFOV = 75f;
-			hookCamera.adsFOV = 45f;
+			hookCamera.defaultFOV = ShoulderCamera.FOV;
+			hookCamera.adsFOV = ShoulderCamera.adsFOV;
 
 			mainCamera = hookCamera.renderCamera; // hookCamera.mainVCam;
 
@@ -140,32 +190,8 @@ namespace ShoulderSurfing {
 			}
 
 			originFarClip = mainCamera.farClipPlane; // original: 300f
-			mainCamera.farClipPlane = 80f;
+			mainCamera.farClipPlane = ShoulderCamera.renderDistance;
 
-			/*
-			originDOF2Active.Clear();
-			originMotionBlur2Active.Clear();
-			// Removing all depth of field effects in the game
-			foreach (Volume volume in FindObjectsOfType<Volume>(true))
-			{
-				if (volume && volume.profile)
-				{
-					DepthOfField depthOfField = null;
-					MotionBlur motionBlur = null;
-					volume.profile.TryGet<DepthOfField>(out depthOfField);
-					volume.profile.TryGet<MotionBlur>(out motionBlur);
-					if (depthOfField != null)
-					{
-						originDOF2Active[depthOfField] = depthOfField.active;
-						depthOfField.active = false;
-					}
-					if (motionBlur != null)
-					{
-						originMotionBlur2Active[motionBlur] = motionBlur.active;
-						motionBlur.active = false;
-					}
-				}
-			}*/
 			DisableAllDOF();
 			DisableCameraModeDOF();
 			SceneManager.sceneLoaded += OnSceneLoaded;
@@ -203,17 +229,6 @@ namespace ShoulderSurfing {
 				hookCamera.brain.enabled = true;
 			}
 
-			/*
-			// Recover all DepthOfField and MotionBlur components
-			foreach (KeyValuePair<DepthOfField, bool> pair in originDOF2Active) {
-				pair.Key.active = pair.Value;
-			}
-			foreach (KeyValuePair<MotionBlur, bool> pair in originMotionBlur2Active) {
-				pair.Key.active = pair.Value;
-			}
-			originDOF2Active.Clear();
-			originMotionBlur2Active.Clear();
-			*/
 			SceneManager.sceneLoaded -= OnSceneLoaded;
 			CameraMode.OnCameraModeDeactivated -= DisableCameraModeDOF;
 
@@ -259,23 +274,49 @@ namespace ShoulderSurfing {
             // }
         }
 		
+		void HandleShoulderSideSwitch() {
+			// Updating shoulder side by player's input
+			if (Input.GetKeyDown(shoulderSideKeySingle)) {
+				IsLeftShoulder = !IsLeftShoulder;
+			}
+			if (Input.GetKeyDown(shoulderLeftSideKey)) {
+				IsLeftShoulder = true;
+			} else if (Input.GetKeyDown(shoulderRightSideKey)) {
+				IsLeftShoulder = false;
+			}
+			targetShoulderCameraOffset.x = Math.Abs(targetShoulderCameraOffset.x) * (IsLeftShoulder ? -1f : 1f);
+		}
+
 		void UpdateCollidedCameraPosition() {
 			// Update camera position by follow target
 			Vector3 cameraForward = mainCamera.transform.forward;
 			Vector3 cameraRight = Vector3.Cross(Vector3.up, cameraForward);
-			Vector3 anchorPos = target.transform.position + Vector3.up * 0.5f;
+			Vector3 anchorPos = target.transform.position + anchorOffset;
 
+			// Updating camera position with smooth lerp
 			// v1.0: (1, 1.75, -2.8)
-			Vector3 shoulderCameraOffset = cameraRight * 1f + Vector3.up * 1.25f + cameraForward * -2.8f;
-			Vector3 shoulderCameraDir = shoulderCameraOffset.normalized;
-			float shoulderCameraDistance = shoulderCameraOffset.magnitude;
-			Ray shoulderCameraRay = new Ray(anchorPos, shoulderCameraDir);
+			// v1.1: (1, 1.25, -2.8)
+			Vector3 cameraMoveOffset = targetShoulderCameraOffset - currentShoulderCameraOffset;
+			float camPosDeltaThisFrame = Time.deltaTime * cameraLerpSpeed;
+			if (cameraMoveOffset.magnitude > camPosDeltaThisFrame) {
+				currentShoulderCameraOffset += cameraMoveOffset.normalized * camPosDeltaThisFrame;
+			} else {
+				currentShoulderCameraOffset = targetShoulderCameraOffset;
+			}
+			Vector3 camOffset = cameraRight * currentShoulderCameraOffset.x
+										+ Vector3.up * currentShoulderCameraOffset.y
+										+ cameraForward * currentShoulderCameraOffset.z;
+			Vector3 camDir = camOffset.normalized;
+			float camDistance = camOffset.magnitude;
+
+			// Handle camera collision
+			Ray shoulderCameraRay = new Ray(anchorPos, camDir);
 			RaycastHit hitinfo;
-			if (Physics.SphereCast(shoulderCameraRay, 0.1f, out hitinfo, shoulderCameraDistance, cameraCollisionLayerMask)) {
-				mainCamera.transform.position = anchorPos + hitinfo.distance * shoulderCameraDir;
+			if (Physics.SphereCast(shoulderCameraRay, 0.15f, out hitinfo, camDistance, cameraCollisionLayerMask)) {
+				mainCamera.transform.position = anchorPos + hitinfo.distance * camDir;
 			} else {
 				// No colliding
-				mainCamera.transform.position = anchorPos + shoulderCameraOffset;
+				mainCamera.transform.position = anchorPos + camOffset;
 			}
 		}
 
@@ -309,18 +350,21 @@ namespace ShoulderSurfing {
 
 			RehookCamera();
 
+			HandleShoulderSideSwitch();
+
 			// View switch
 			if (Keyboard.current.f7Key.wasPressedThisFrame
 				|| (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.commaKey.wasPressedThisFrame) || Input.GetKeyDown(switchShoulderCameraKey)) {
 				shoulderCameraToggled = !shoulderCameraToggled;
 			}
 
+			// Map 
 			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.slashKey.wasPressedThisFrame) {
 				MiniMapCommon.isMapRotateWithCamera = !MiniMapCommon.isMapRotateWithCamera;
 			}
 			// Temporary recoil switch
 			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
-				InputManagerExtenderCommon.ShoulderRecoilMultiplier = InputManagerExtenderCommon.ShoulderRecoilMultiplier <= 0.0f ? 0.36f : 0.0f;
+				InputManagerExtenderCommon.ShoulderRecoilMultiplier = InputManagerExtenderCommon.ShoulderRecoilMultiplier <= 0f ? InputManagerExtenderCommon.DefaultShoulderRecoilMultiplier : 0f;
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
@@ -377,6 +421,12 @@ namespace ShoulderSurfing {
 
 		FieldInfo mouseDeltaField;
 
+		// Camera position lerp while switching shoulder side
+		const float cameraLerpSpeed = 5f;
+		Vector3 currentShoulderCameraOffset;
+		Vector3 targetShoulderCameraOffset = new Vector3(1f, 1f, -2.8f);
+		Vector3 anchorOffset = Vector3.up * 0.75f;
+
 		int cameraCollisionLayerMask;
 
 		private float cameraPitch = 0f;
@@ -386,7 +436,5 @@ namespace ShoulderSurfing {
 		float originDefaultFOV = 0f;
 		float originAdsFOV = 0f;
 		float originFarClip = 0f;
-		Dictionary<DepthOfField, bool> originDOF2Active = new Dictionary<DepthOfField, bool>();
-		Dictionary<MotionBlur, bool> originMotionBlur2Active = new Dictionary<MotionBlur, bool>();
 	}
 }
