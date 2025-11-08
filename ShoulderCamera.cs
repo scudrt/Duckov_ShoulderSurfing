@@ -37,6 +37,7 @@ namespace ShoulderSurfing {
 			}
 		}
 		
+		public static KeyCode switchShoulderCameraKey = KeyCode.Period;
 
 		public static void EnableTPSMode(GameObject parentMod) {
 			parentMod.AddComponent<ShoulderCamera>();
@@ -266,7 +267,7 @@ namespace ShoulderSurfing {
 
 			// View switch
 			if (Keyboard.current.f7Key.wasPressedThisFrame
-				|| (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.commaKey.wasPressedThisFrame)) {
+				|| (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.commaKey.wasPressedThisFrame) || Input.GetKeyDown(switchShoulderCameraKey)) {
 				shoulderCameraToggled = !shoulderCameraToggled;
 			}
 

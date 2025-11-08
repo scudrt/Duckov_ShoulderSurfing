@@ -58,6 +58,31 @@ namespace ShoulderSurfing
                             thisSettingObject.valueChangeFunc
                         );
                     }),
+                new SettingObject<KeyCode>().SetName("ShoulderCameraToggleKey")
+                    .SetDescCN("切换越肩视角按键")
+                    .SetDescEN("Toggle ShoulderCamera Key")
+                    .SetGetValueFunc(() =>
+                    {
+                        return ShoulderCamera.switchShoulderCameraKey;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        ShoulderCamera.switchShoulderCameraKey = value;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.switchShoulderCameraKey;
+                        ShoulderCamera.switchShoulderCameraKey = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddKeybinding(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
                 // new SettingObject<bool>().SetName("ShoulderPos")
                 //     .SetDescCN("左肩机位")
                 //     .SetDescEN("IsLeftShoulder")
