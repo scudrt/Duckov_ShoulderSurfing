@@ -34,7 +34,6 @@ public static class InputManagerExtender {
 
 	// Handling recoil
 	static bool needResetRecoil = true;
-	static Vector2 recoilAccum = Vector2.zero;
 	static Vector2 targetMousePos = Vector2.zero;
 
 	public static bool Prefix(InputManager __instance, ref Vector2 mouseDelta) {
@@ -59,22 +58,17 @@ public static class InputManagerExtender {
 			return true;
 		}
 
+		cameraShakePixels = 0f;
+
 		isCurrentlyInputActive = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
 		if (!isCurrentlyInputActive) {
-			needResetRecoil = true;
-			cameraShakePixels = 0f;
 			return true;
-		}
-		if (needResetRecoil && isCurrentlyInputActive) {
-			needResetRecoil = false;
-			cameraShakePixels = 0f;
-			recoilAccum = Vector2.zero;
 		}
 
 		CenterOfScreen.x = Screen.width  * 0.5f;
 		CenterOfScreen.y = Screen.height * 0.5f;
 
-		bool playerTryControlRecoil = mouseDelta.y < 0f;
+		bool playerTryControlRecoil = mouseDelta.x != 0f || mouseDelta.y != 0f;
 		// Make cursor always be on the center of screen
 		targetMousePos = CenterOfScreen;
 
@@ -94,10 +88,10 @@ public static class InputManagerExtender {
 	}
 
 	public static void Postfix(InputManager __instance) {
-		if (!ShoulderCamera.shoulderCameraInitalized) {
+		if (!isCurrentlyInputActive) {
 			return;
 		}
-		if (!isCurrentlyInputActive) {
+		if (!ShoulderCamera.shoulderCameraInitalized) {
 			return;
 		}
 

@@ -8,8 +8,8 @@ using ShoulderSurfing;
 [HarmonyPatch(typeof(GamingConsole))]
 [HarmonyPatch("OnInteractStart")]
 public static class MiniGameStartExtender {
-	public static void Postfix(GamingConsole __instance) {
-		ShoulderCamera.isMiniGameEnabled = __instance.Game != null;
+	public static void Prefix(GamingConsole __instance) {
+		ShoulderCamera.isMiniGameEnabled = __instance.Monitor && __instance.Cartridge && __instance.Console && __instance.SelectedGame;
 	}
 }
 

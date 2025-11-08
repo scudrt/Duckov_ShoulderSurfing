@@ -6,11 +6,12 @@ using UnityEngine.Rendering;
 using Cinemachine.Utility;
 using UnityEngine.InputSystem;
 using Duckov.Buildings.UI;
+using UnityEngine.SceneManagement;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
 		// Global switch indicating whether we're in shoulder surfing view
-		public static bool shoulderCameraToggled = false;
+		public static bool shoulderCameraToggled = true;
 		public static bool shoulderCameraInitalized = false;
 
 		public static bool isMiniGameEnabled = false;
@@ -70,6 +71,42 @@ namespace ShoulderSurfing {
 			}
 		}
 
+		private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => DisableAllDOF();
+
+		public void DisableCameraModeDOF() {
+			if (!Camera.main) {
+				return;
+			}
+
+			Transform CMVolumes = Camera.main.transform.Find("__CMVolumes");
+			if (CMVolumes) {
+				DepthOfField dof;
+				var volume = CMVolumes.GetComponent<Volume>();
+				if (volume && volume.profile && volume.profile.TryGet<DepthOfField>(out dof)) {
+					if (dof) {
+						dof.active = false;
+					}
+				}
+			}
+		}
+
+		public void DisableAllDOF() {
+			Debug.Log("Try to disable all DOF");
+
+			// Disable all dof for shoulder camera
+			var volumes = FindObjectsOfType<Volume>();
+			foreach (var volume in volumes) {
+				if (!volume || !volume.profile) {
+					continue;
+				}
+
+				DepthOfField dof = null;
+				if (volume.profile.TryGet<DepthOfField>(out dof) && dof) {
+					dof.active = false;
+				}
+			}
+		}
+
 		public void OnShoulderCameraEnable()
 		{
 			if (shoulderCameraInitalized)
@@ -105,6 +142,7 @@ namespace ShoulderSurfing {
 			originFarClip = mainCamera.farClipPlane; // original: 300f
 			mainCamera.farClipPlane = 80f;
 
+			/*
 			originDOF2Active.Clear();
 			originMotionBlur2Active.Clear();
 			// Removing all depth of field effects in the game
@@ -127,7 +165,11 @@ namespace ShoulderSurfing {
 						motionBlur.active = false;
 					}
 				}
-			}
+			}*/
+			DisableAllDOF();
+			DisableCameraModeDOF();
+			SceneManager.sceneLoaded += OnSceneLoaded;
+			CameraMode.OnCameraModeDeactivated += DisableCameraModeDOF;
 
 			Debug.Log("Shoulder Camera initialized");
 
@@ -135,6 +177,51 @@ namespace ShoulderSurfing {
 			// SetOcclusionFadeStatus(false);
 		}
 
+		public void OnShoulderCameraDisable(bool switchToCameraMode = false) {
+			if (!shoulderCameraInitalized) {
+				return;
+			}
+			if (hookCamera == null || mainCamera == null) {
+				return;
+			}
+
+			hookCamera.defaultFOV = originDefaultFOV;
+			hookCamera.adsFOV = originAdsFOV;
+
+			mainCamera.farClipPlane = originFarClip;
+
+			if (!switchToCameraMode) {
+				if (hookCamera.mainVCam != null) {
+					hookCamera.mainVCam.enabled = true;
+				}
+				if (hookCamera.mianCameraArm != null) {
+					hookCamera.mianCameraArm.enabled = true;
+				}
+			}
+
+			if (hookCamera.brain != null) {
+				hookCamera.brain.enabled = true;
+			}
+
+			/*
+			// Recover all DepthOfField and MotionBlur components
+			foreach (KeyValuePair<DepthOfField, bool> pair in originDOF2Active) {
+				pair.Key.active = pair.Value;
+			}
+			foreach (KeyValuePair<MotionBlur, bool> pair in originMotionBlur2Active) {
+				pair.Key.active = pair.Value;
+			}
+			originDOF2Active.Clear();
+			originMotionBlur2Active.Clear();
+			*/
+			SceneManager.sceneLoaded -= OnSceneLoaded;
+			CameraMode.OnCameraModeDeactivated -= DisableCameraModeDOF;
+
+			Debug.Log("Shoulder Camera deinitialized");
+
+			shoulderCameraInitalized = false;
+			// SetOcclusionFadeStatus(true);
+		}
 
 		// 暂时没有用
 		public void SetCullingMode(CullMode mode)
@@ -172,49 +259,6 @@ namespace ShoulderSurfing {
             // }
         }
 		
-		void OnShoulderCameraDisable(bool switchToCameraMode = false) {
-			if (!shoulderCameraInitalized) {
-				return;
-			}
-			if (hookCamera == null || mainCamera == null) {
-				return;
-			}
-
-			hookCamera.defaultFOV = originDefaultFOV;
-			hookCamera.adsFOV = originAdsFOV;
-
-			mainCamera.farClipPlane = originFarClip;
-
-			if (!switchToCameraMode) {
-				if (hookCamera.mainVCam != null) {
-					hookCamera.mainVCam.enabled = true;
-				}
-				if (hookCamera.mianCameraArm != null) {
-					hookCamera.mianCameraArm.enabled = true;
-				}
-			}
-
-			if (hookCamera.brain != null) {
-				hookCamera.brain.enabled = true;
-			}
-
-			// Recover all DepthOfField and MotionBlur components
-			foreach (KeyValuePair<DepthOfField, bool> pair in originDOF2Active) {
-				pair.Key.active = pair.Value;
-			}
-			foreach (KeyValuePair<MotionBlur, bool> pair in originMotionBlur2Active) {
-				pair.Key.active = pair.Value;
-			}
-			originDOF2Active.Clear();
-			originMotionBlur2Active.Clear();
-
-			Debug.Log("Shoulder Camera deinitialized");
-
-			shoulderCameraInitalized = false;
-			// SetOcclusionFadeStatus(true);
-		}
-
-
 		void UpdateCollidedCameraPosition() {
 			// Update camera position by follow target
 			Vector3 cameraForward = mainCamera.transform.forward;
@@ -258,7 +302,7 @@ namespace ShoulderSurfing {
 			bool otherModeInterupted = CameraMode.Active || (BuilderView.Instance && BuilderView.Instance.open) || isMiniGameEnabled;
 			if (otherModeInterupted) {
 				if (shoulderCameraInitalized) {
-					OnShoulderCameraDisable(CameraMode.Active);
+					OnShoulderCameraDisable(true);
 				}
 				return;
 			}
@@ -288,11 +332,6 @@ namespace ShoulderSurfing {
 			if (target == null) {
 				target = CharacterMainControl.Main;
 			}
-			if (inputManager == null) {
-				if (LevelManager.Instance != null) {
-					inputManager = LevelManager.Instance.InputManager;
-				}
-			}
 		}
 
 		void LateUpdate() {
@@ -304,20 +343,19 @@ namespace ShoulderSurfing {
 			}
 
 			// Update camera rotation by player input
-			if (this.inputManager) {
-				if (InputManager.InputActived && CharacterInputControl.Instance) { // No camera rotation while the game is paused or the inventory is open
-					// Update mouse delta to the rotation
-					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
+			if (Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance) { // No camera rotation while the game is paused or the inventory is open
+				// Update mouse delta to the rotation
+				Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
 
-					// Shoulder surfing is more sensitive than the origin
-					currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
-					cameraYaw += currentMouseDelta.x;
-					cameraPitch = Mathf.Clamp(cameraPitch + currentMouseDelta.y, -70f, 70f);
-				}
+				// Shoulder surfing is more sensitive than the origin
+				currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
+				cameraYaw += currentMouseDelta.x;
+				cameraPitch = Mathf.Clamp(cameraPitch + currentMouseDelta.y, -70f, 70f);
+
+				// Camera shaked by recoil
+				float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixels * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
+				cameraPitch = Mathf.Clamp(cameraPitch + cameraShakePitchThisFrame, -70f, 70f);
 			}
-			// Camera shaked by recoil
-			float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixels * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
-			cameraPitch = Mathf.Clamp(cameraPitch + cameraShakePitchThisFrame, -70f, 70f);
 
 			mainCamera.fieldOfView = hookCamera.mainVCam.m_Lens.FieldOfView;
 
@@ -332,7 +370,6 @@ namespace ShoulderSurfing {
 		}
 
 		CharacterMainControl target;
-		InputManager inputManager;
 
 		GameCamera hookCamera;
 		Camera mainCamera;
