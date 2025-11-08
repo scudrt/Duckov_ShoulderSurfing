@@ -17,6 +17,8 @@ public static class MiniMapCommon
 {
 	public static bool isMapRotateWithCamera = false;
 	public static GameObject playerArrow;
+	public static float mapIndicatorAlpha = 0f;
+
 	public static Vector3 GetPlayerMinimapLocalPosition()
 	{
 		Vector3 vector;
@@ -103,6 +105,8 @@ public static class MiniMapDisplayExtender
 public static class MiniMapDisplaySetupExtender
 {
 	public static GameObject currentDisplay;
+	public static Image arrowCache;
+	public static Image rangeCache;
 	public static void Postfix(MiniMapDisplay __instance)
 	{
 		currentDisplay = __instance.gameObject;
@@ -116,14 +120,21 @@ public static class MiniMapDisplaySetupExtender
 			// MiniMapCommon.playerArrow.transform.localScale = Vector3.one * 0.7f / __instance.transform.localScale.x;
 			MiniMapCommon.playerArrow.transform.SetAsLastSibling();
 			MiniMapCommon.playerArrow.transform.localRotation = MiniMapCommon.GetPlayerMinimapRotation();
+			arrowCache.color = new Color(1, 1, 1, MiniMapCommon.mapIndicatorAlpha);
+			rangeCache.color = new Color(1, 1, 1, 0.5f * MiniMapCommon.mapIndicatorAlpha);
+
 			return;
 		}
 		// 创建新的GameObject并添加Image组件
 		GameObject arrowObject = new GameObject("PlayerImage");
 		MiniMapCommon.playerArrow = arrowObject;
 		Image arrowImage = arrowObject.AddComponent<Image>();
+		arrowCache = arrowImage;
+		arrowImage.color = new Color(1, 1, 1, MiniMapCommon.mapIndicatorAlpha);
+
 		GameObject viewRangeGameobject = new GameObject("ViewRangeImage");
 		Image rangeImage = viewRangeGameobject.AddComponent<Image>();
+		rangeCache = rangeImage;
 
 		arrowImage.sprite = Util.LoadSprite("player.png");
 		rangeImage.sprite = Util.LoadSprite("range.png");
@@ -132,7 +143,7 @@ public static class MiniMapDisplaySetupExtender
 		viewRangeGameobject.transform.SetParent(arrowObject.transform, false);
 		viewRangeGameobject.transform.localPosition = new Vector3(0, 32, 0);
 		rangeImage.rectTransform.pivot = new Vector2(0.5f, 0f);
-		rangeImage.color = new Color(1, 1, 1, 0.5f);
+		rangeImage.color = new Color(1, 1, 1, 0.5f * MiniMapCommon.mapIndicatorAlpha);
 		viewRangeGameobject.transform.localScale = Vector3.one * 2f;
 
 		arrowObject.transform.SetParent(__instance.transform, false);

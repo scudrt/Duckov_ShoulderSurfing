@@ -1,27 +1,78 @@
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Reflection;
 using ShoulderSurfing;
+using System.Collections;
 
 public class CustomStaminaHUD : MonoBehaviour
 {
     private GameObject customCanvas;
+    private GameObject barObject;
     private Image fillImage;
     private CanvasGroup canvasGroup;
     private CharacterMainControl characterMainControl;
     private float percent;
     private float targetAlpha;
-    
+
     // 颜色渐变（参考原版的 glowColor）
     private Gradient glowColor;
-    
+
+    private bool isAlwayShow = false;
+    private Coroutine alwayShowCor;
     private void Start()
     {
         CreateCustomUI();
         InitializeGradient();
     }
-    
+
+    public void _UpdateBarPos(Vector2 offset, RectTransform parentRect)
+    {
+        float parentWidth = parentRect.rect.width;
+        float parentHeight = parentRect.rect.height;
+        if (parentRect.rect.width <= 0 || parentRect.rect.height <= 0)
+        {
+            Debug.LogWarning($"父Canvas尺寸异常: {parentRect.rect.width} x {parentRect.rect.height}");
+            return;
+        }
+        var barRect = barObject.GetComponent<RectTransform>();
+        // 计算偏移量：将归一化坐标转换为相对于中心锚点的像素偏移
+        // x=0时，偏移为 -parentWidth/2（最左）；x=1时，偏移为 parentWidth/2（最右）
+        float offsetX = (offset.x - 0.5f) * parentWidth;
+        float offsetY = (offset.y - 0.5f) * parentHeight;
+        // 设置anchoredPosition
+        barRect.anchoredPosition = new Vector2(offsetX, offsetY);
+    }
+
+    public void UpdateBarPos(Vector2 offset)
+    {
+        SetTempAlwayShow();
+        // 获取父RectTransform的实际宽度和高度
+        _UpdateBarPos(offset, GameManager.PauseMenu.GetComponent<RectTransform>());
+    }
+
+    public void UpdateScale(float scale)
+    {
+        barObject.transform.localScale = Vector3.one * scale;
+        SetTempAlwayShow();
+    }
+
+    public void SetTempAlwayShow()
+    {
+        barObject.transform.SetParent(GameManager.PauseMenu.transform);
+        if (alwayShowCor != null)
+        {
+            StopCoroutine(alwayShowCor);
+            alwayShowCor = null;
+        }
+        alwayShowCor = StartCoroutine(AlwaysShow());
+    }
+
+    public IEnumerator AlwaysShow()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+        barObject.transform.SetParent(customCanvas.transform);
+    }
+
     private void CreateCustomUI()
     {
         // 创建 Canvas
@@ -29,22 +80,30 @@ public class CustomStaminaHUD : MonoBehaviour
         Canvas canvas = customCanvas.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 1000; // 确保在最前面
-        
+
         // 添加 CanvasScaler 用于适应不同分辨率
         CanvasScaler scaler = customCanvas.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
-        
-        // 添加 GraphicRaycaster（如果需要交互）
-        customCanvas.AddComponent<GraphicRaycaster>();
-        
+        scaler.referenceResolution = new Vector2(2560, 1440);
+
         // 创建 CanvasGroup 用于控制透明度
         canvasGroup = customCanvas.AddComponent<CanvasGroup>();
-        
+        CreateBackgroundCircle();
+        CreateBarCircle();
+        _UpdateBarPos(StaminaHUDExtender.staminaHUDOffset, canvas.GetComponent<RectTransform>());
+
+        // 设置为不销毁，跨场景保持
+        DontDestroyOnLoad(customCanvas);
+
+        Debug.Log("Custom Circular Stamina HUD created successfully");
+    }
+
+    private void CreateBarCircle()
+    {
         // 创建 Image 作为耐力条 - 改为圆形填充
         GameObject imageObject = new GameObject("CustomStaminaImage");
-        imageObject.transform.SetParent(customCanvas.transform);
-
+        imageObject.transform.SetParent(barObject.transform);
+        // 设置位置和大小（屏幕中央）
         fillImage = imageObject.AddComponent<Image>();
 
         // 设置 Image 属性为圆形填充
@@ -53,49 +112,37 @@ public class CustomStaminaHUD : MonoBehaviour
         fillImage.fillMethod = Image.FillMethod.Radial360;
         fillImage.fillOrigin = (int)Image.Origin360.Top;
         fillImage.fillClockwise = false; // 顺时针填充
-        
-        // 设置位置和大小（屏幕中央）
+        // 设置颜色（初始为绿色）
+        fillImage.color = Color.green;
+
         RectTransform rectTransform = fillImage.GetComponent<RectTransform>();
         rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
         rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
         rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        rectTransform.anchoredPosition = new Vector2(50, -50); // 屏幕中央偏上
-        rectTransform.sizeDelta = new Vector2(40,40); // 圆形，所以宽高相同
-        
-        // 设置颜色（初始为绿色）
-        fillImage.color = Color.green;
-        
-        // 创建一个背景圆形（可选）
-        CreateBackgroundCircle(customCanvas.transform, rectTransform);
-        
-        // 设置为不销毁，跨场景保持
-        DontDestroyOnLoad(customCanvas);
-        
-        Debug.Log("Custom Circular Stamina HUD created successfully");
+        rectTransform.anchoredPosition = Vector2.zero;
+        rectTransform.sizeDelta = new Vector2(40, 40); // 圆形，所以宽高相同
+
     }
-    
-    private void CreateBackgroundCircle(Transform parent, RectTransform referenceTransform)
+
+    private void CreateBackgroundCircle()
     {
         // 创建背景圆形
-        GameObject backgroundObject = new GameObject("StaminaBackground");
-        backgroundObject.transform.SetParent(parent);
+        barObject = new GameObject("StaminaBackground");
+        barObject.transform.SetParent(customCanvas.transform);
         
-        Image backgroundImage = backgroundObject.AddComponent<Image>();
+        Image backgroundImage = barObject.AddComponent<Image>();
         backgroundImage.sprite = Util.LoadSprite("CircleGlowBK.png");
         
         // 设置背景颜色（半透明灰色）
         backgroundImage.color = new Color(0f, 0f, 0f, 0.8f);
         
         // 设置位置和大小，比前景稍大
-        RectTransform bgRect = backgroundObject.GetComponent<RectTransform>();
+        RectTransform bgRect = barObject.GetComponent<RectTransform>();
         bgRect.anchorMin = new Vector2(0.5f, 0.5f);
         bgRect.anchorMax = new Vector2(0.5f, 0.5f);
         bgRect.pivot = new Vector2(0.5f, 0.5f);
-        bgRect.anchoredPosition = referenceTransform.anchoredPosition;
+        bgRect.anchoredPosition = Vector2.zero;
         bgRect.sizeDelta = new Vector2(55, 55); // 比前景圆形大一点
-        
-        // 确保背景在填充圆形的后面
-        backgroundObject.transform.SetSiblingIndex(0);
     }
     
     
@@ -139,12 +186,19 @@ public class CustomStaminaHUD : MonoBehaviour
             characterMainControl = LevelManager.Instance.MainCharacter;
 
         }
-        
-        if(!characterMainControl)
+
+        if (!characterMainControl)
         {
             // Debug.Log("characterMainControl is null" + LevelManager.Instance.MainCharacter);
             return;
         }
+        if (isAlwayShow)
+        {
+            Show();
+            fillImage.fillAmount = 1;
+            return;
+        }
+
         // 计算耐力百分比
         float currentStamina = GetCurrentStamina();
         float maxStamina = GetMaxStamina();
@@ -246,6 +300,26 @@ public class StaminaHUDExtender
 {
     public static GameObject modObject;
     public static GameObject staminaHUD;
+
+    public static Vector2 staminaHUDOffset = Vector2.zero;
+    public static float staminaHUDScale = 1f;
+
+    public static void UpdateCustomHUDOffset()
+    {
+        if (modObject)
+        {
+            modObject.GetComponent<CustomStaminaHUD>().UpdateBarPos(staminaHUDOffset);
+        }
+    }
+    public static void UpdateCustomHUDScale(float scale)
+    {
+        if (modObject)
+        {
+            modObject.transform.localScale = Vector3.one * scale;
+            staminaHUDScale = scale;
+            modObject.GetComponent<CustomStaminaHUD>().UpdateScale(scale);
+        }
+    }
 
     public static bool Prefix(StaminaHUD __instance)
     {

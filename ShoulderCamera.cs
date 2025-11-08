@@ -14,6 +14,29 @@ namespace ShoulderSurfing {
 		public static bool shoulderCameraInitalized = false;
 
 		public static bool isMiniGameEnabled = false;
+		private static float fov = 75f;
+
+		private static bool _isLeftShoulder = false;
+		public static bool IsLeftShoulder
+		{
+			get => _isLeftShoulder;
+			set
+			{
+				_isLeftShoulder = value;
+				// if (value) {
+				// 	// 左肩机位
+				// 	originDefaultFOV = hookCamera.defaultFOV;
+				// 	originAdsFOV = hookCamera.adsFOV;
+				// 	hookCamera.defaultFOV = 75f;
+				// 	hookCamera.adsFOV = 45f;
+				// } else {
+				// 	// 右肩机位
+				// 	hookCamera.defaultFOV = originDefaultFOV;
+				// 	hookCamera.adsFOV = originAdsFOV;
+				// }
+			}
+		}
+		
 
 		public static void EnableTPSMode(GameObject parentMod) {
 			parentMod.AddComponent<ShoulderCamera>();
@@ -252,7 +275,7 @@ namespace ShoulderSurfing {
 			}
 			// Temporary recoil switch
 			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
-				InputManagerExtenderCommon.ShoulderRecoilMultiplier = 0.36f - InputManagerExtenderCommon.ShoulderRecoilMultiplier;
+				InputManagerExtenderCommon.ShoulderRecoilMultiplier = InputManagerExtenderCommon.ShoulderRecoilMultiplier <= 0.0f ? 0.36f : 0.0f;
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {

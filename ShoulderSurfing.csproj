@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <DuckovPath>F:\steam\steamapps\common\Escape from Duckov\Duckov_Data</DuckovPath>
+    <ManagedPath>$(DuckovPath)\Managed</ManagedPath>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -16,6 +17,17 @@
         </Reference>
         <Reference Include="$(DuckovPath)\Managed\Unity*" />
         <ResourceFiles Include="Resources\**\*" />
+
+          <!-- 包含所有 DLL -->
+        <AllDlls Include="$(ManagedPath)\*.dll" />
+
+        <!-- 定义要排除的系统 DLL -->
+        <SystemDlls Include="$(ManagedPath)\mscorlib.dll;&#xA;                      $(ManagedPath)\System.dll;&#xA;                      $(ManagedPath)\System.*.dll;&#xA;                      $(ManagedPath)\Microsoft.*.dll;&#xA;                      $(ManagedPath)\netstandard.dll;&#xA;                      $(ManagedPath)\WindowsBase.dll" />
+        <Content Include="Release\preview.png" />
+        <None Include="Release\info.ini" />
+
+        <!-- 引用非系统 DLL -->
+        <Reference Include="@(AllDlls)" Exclude="@(SystemDlls)" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ShoulderSurfing\" />
@@ -23,6 +35,8 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="bin\Debug\netstandard2.1\ShoulderSurfing.dll" 
           DestinationFiles="$(DuckovPath)\Mods\ShoulderSurfing\ShoulderSurfing.dll" />
+    <Copy SourceFiles="libs\0Harmony.dll" 
+          DestinationFiles="$(DuckovPath)\Mods\ShoulderSurfing\0Harmony.dll" />
     <Copy SourceFiles="@(ResourceFiles)" 
           DestinationFolder="$(DuckovPath)\Mods\ShoulderSurfing\%(RecursiveDir)" 
           SkipUnchangedFiles="true" />
