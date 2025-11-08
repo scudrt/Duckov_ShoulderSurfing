@@ -197,6 +197,8 @@ namespace ShoulderSurfing {
 			SceneManager.sceneLoaded += OnSceneLoaded;
 			CameraMode.OnCameraModeDeactivated += DisableCameraModeDOF;
 
+			isInputActiveLastFrame = false;
+
 			Debug.Log("Shoulder Camera initialized");
 
 			shoulderCameraInitalized = true;
@@ -231,6 +233,8 @@ namespace ShoulderSurfing {
 
 			SceneManager.sceneLoaded -= OnSceneLoaded;
 			CameraMode.OnCameraModeDeactivated -= DisableCameraModeDOF;
+
+			isInputActiveLastFrame = false;
 
 			Debug.Log("Shoulder Camera deinitialized");
 
@@ -388,17 +392,24 @@ namespace ShoulderSurfing {
 
 			// Update camera rotation by player input
 			if (Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance) { // No camera rotation while the game is paused or the inventory is open
-				// Update mouse delta to the rotation
-				Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
+				if (!isInputActiveLastFrame) {
+					// Freeze input and camera rotation for one frame after input is active
+				} else {
+					// Update mouse delta to the rotation
+					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
+					// Shoulder surfing is more sensitive than the origin, so we use 0.01
+					currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
 
-				// Shoulder surfing is more sensitive than the origin
-				currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
-				cameraYaw += currentMouseDelta.x;
-				cameraPitch = Mathf.Clamp(cameraPitch + currentMouseDelta.y, -70f, 70f);
+					// Camera shaked by recoil
+					float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixels * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
 
-				// Camera shaked by recoil
-				float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixels * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
-				cameraPitch = Mathf.Clamp(cameraPitch + cameraShakePitchThisFrame, -70f, 70f);
+					cameraYaw += currentMouseDelta.x;
+					cameraPitch = Mathf.Clamp(cameraPitch + cameraShakePitchThisFrame + currentMouseDelta.y, -70f, 70f);
+				}
+
+				isInputActiveLastFrame = true;
+			} else {
+				isInputActiveLastFrame = false;
 			}
 
 			mainCamera.fieldOfView = hookCamera.mainVCam.m_Lens.FieldOfView;
@@ -428,6 +439,7 @@ namespace ShoulderSurfing {
 		Vector3 anchorOffset = Vector3.up * 0.75f;
 
 		int cameraCollisionLayerMask;
+		bool isInputActiveLastFrame = false;
 
 		private float cameraPitch = 0f;
 		private float cameraYaw = 0f;
