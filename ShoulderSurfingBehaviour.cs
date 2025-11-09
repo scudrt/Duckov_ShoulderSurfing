@@ -6,6 +6,7 @@ using Duckov.MiniMaps.UI;
 using Duckov.MiniGames;
 using UnityEngine;
 using Duckov.Modding;
+using UnityEngine.SceneManagement;
 
 namespace ShoulderSurfing {
 
@@ -78,10 +79,7 @@ namespace ShoulderSurfing {
 			ShoulderCamera.EnableTPSMode(this.gameObject);
             ModManager.OnModActivated += ModManager_OnModActivated;
             ModManager.OnModWillBeDeactivated += ModManager_OnModWillBeDeactivated;
-		}
-
-		void Start()
-		{
+			new CustomMinimapManager();
 		}
 
 		void OnDisable()
@@ -90,7 +88,8 @@ namespace ShoulderSurfing {
 			StaminaHUDExtender.Unload();
 			ShoulderCamera.DisableTPSMode(this.gameObject);
             ModManager.OnModActivated -= ModManager_OnModActivated;
-            ModManager.OnModWillBeDeactivated -= ModManager_OnModWillBeDeactivated;
+			ModManager.OnModWillBeDeactivated -= ModManager_OnModWillBeDeactivated;
+			CustomMinimapManager.Instance.Destroy();
 		}
 
 		//下面两个函数需要实现，实现后的效果是：ModSetting和mod之间不需要启动顺序，两者无论谁先启动都能正常添加设置
@@ -113,13 +112,19 @@ namespace ShoulderSurfing {
 		{
 			//(触发时机:此mod在ModSetting之后启用)此mod，Setup后,尝试进行初始化
 			if (ModSettingAPI.Init(info))
+            {
 				new ModSettingManager();
+            }
+		}
+
+		void Update()
+		{
+			if (ModSettingManager.Instance != null)
+				ModSettingManager.Instance.Update();
+			if (CustomMinimapManager.Instance != null)
+				CustomMinimapManager.Instance.Update();
+			CustomMinimapManager.CheckToggleKey();
 		}
 		
-		void Update()
-        {
-            if (ModSettingManager.Instance != null)
-                ModSettingManager.Instance.Update();
-        }
 	}
 }

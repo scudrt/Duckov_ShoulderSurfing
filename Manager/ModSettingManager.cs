@@ -85,134 +85,134 @@ namespace ShoulderSurfing
                             thisSettingObject.valueChangeFunc
                         );
                     }),
-				new SettingObject<KeyCode>().SetName("ShoulderSideKeySingle")
-					.SetDescCN("左右肩切换快捷键")
-					.SetDescEN("Shoulder Side Switch Key")
-					.SetGetValueFunc(() =>
-					{
+                new SettingObject<KeyCode>().SetName("ShoulderSideKeySingle")
+                    .SetDescCN("左右肩切换快捷键")
+                    .SetDescEN("Shoulder Side Switch Key")
+                    .SetGetValueFunc(() =>
+                    {
                         return ShoulderCamera.shoulderSideKeySingle;
-					})
-					.SetLoadFunc((thisSettingObject) =>
-					{
-						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderSideKeySingle;
-						ShoulderCamera.shoulderSideKeySingle = value;
-					})
-					.SetValueChangeFunc((value) =>
-					{
-						ShoulderCamera.shoulderSideKeySingle = value;
-					})
-					.SetRegisterFunc((thisSettingObject) =>
-					{
-						ModSettingAPI.AddKeybinding(
-							thisSettingObject.name,
-							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
-							thisSettingObject.getValueFunc(),
-							thisSettingObject.valueChangeFunc
-						);
-					}),
-				new SettingObject<KeyCode>().SetName("ShoulderLeftSideKey")
-					.SetDescCN("左肩切换快捷键")
-					.SetDescEN("Shoulder Left Side Key")
-					.SetGetValueFunc(() =>
-					{
-						return ShoulderCamera.shoulderLeftSideKey;
-					})
-					.SetLoadFunc((thisSettingObject) =>
-					{
-						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderLeftSideKey;
-						ShoulderCamera.shoulderLeftSideKey = value;
-					})
-					.SetValueChangeFunc((value) =>
-					{
-						ShoulderCamera.shoulderLeftSideKey = value;
-					})
-					.SetRegisterFunc((thisSettingObject) =>
-					{
-						ModSettingAPI.AddKeybinding(
-							thisSettingObject.name,
-							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
-							thisSettingObject.getValueFunc(),
-							thisSettingObject.valueChangeFunc
-						);
-					}),
-				new SettingObject<KeyCode>().SetName("ShoulderRightSideKey")
-					.SetDescCN("右肩切换快捷键")
-					.SetDescEN("Shoulder Right Side Key")
-					.SetGetValueFunc(() =>
-					{
-						return ShoulderCamera.shoulderRightSideKey;
-					})
-					.SetLoadFunc((thisSettingObject) =>
-					{
-						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderRightSideKey;
-						ShoulderCamera.shoulderRightSideKey = value;
-					})
-					.SetValueChangeFunc((value) =>
-					{
-						ShoulderCamera.shoulderRightSideKey = value;
-					})
-					.SetRegisterFunc((thisSettingObject) =>
-					{
-						ModSettingAPI.AddKeybinding(
-							thisSettingObject.name,
-							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
-							thisSettingObject.getValueFunc(),
-							thisSettingObject.valueChangeFunc
-						);
-					}),
-				new SettingObject<int>().SetName("Fov")
-					.SetDescCN("视野范围(FOV)")
-					.SetDescEN("Field Of View")
-					.SetGetValueFunc(() =>
-					{
-						return (int)ShoulderCamera.FOV;
-					})
-					.SetValueChangeFunc((value) =>
-					{
-						ShoulderCamera.FOV = value;
-					})
-					.SetLoadFunc((thisSettingObject) =>
-					{
-						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.FOV;
-						ShoulderCamera.FOV = (int)value;
-					})
-					.SetRegisterFunc((thisSettingObject) =>
-					{
-						ModSettingAPI.AddSlider(
-							thisSettingObject.name,
-							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
-							thisSettingObject.getValueFunc(),
-							50, 114,
-							thisSettingObject.valueChangeFunc
-						);
-					}),
-				new SettingObject<int>().SetName("RenderingDistance")
-					.SetDescCN("渲染距离")
-					.SetDescEN("Rendering Distance")
-					.SetGetValueFunc(() =>
-					{
-						return ShoulderCamera.renderDistance;
-					})
-					.SetValueChangeFunc((value) =>
-					{
-						ShoulderCamera.renderDistance = value;
-					})
-					.SetLoadFunc((thisSettingObject) =>
-					{
-						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.renderDistance;
-						ShoulderCamera.renderDistance = value;
-					})
-					.SetRegisterFunc((thisSettingObject) =>
-					{
-						ModSettingAPI.AddSlider(
-							thisSettingObject.name,
-							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
-							thisSettingObject.getValueFunc(),
-							30, 300,
-							thisSettingObject.valueChangeFunc
-						);
-					}),
-				new SettingObject<float>().SetName("RecoilMultiplier")
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderSideKeySingle;
+                        ShoulderCamera.shoulderSideKeySingle = value;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        ShoulderCamera.shoulderSideKeySingle = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddKeybinding(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<KeyCode>().SetName("ShoulderLeftSideKey")
+                    .SetDescCN("左肩切换快捷键")
+                    .SetDescEN("Shoulder Left Side Key")
+                    .SetGetValueFunc(() =>
+                    {
+                        return ShoulderCamera.shoulderLeftSideKey;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderLeftSideKey;
+                        ShoulderCamera.shoulderLeftSideKey = value;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        ShoulderCamera.shoulderLeftSideKey = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddKeybinding(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<KeyCode>().SetName("ShoulderRightSideKey")
+                    .SetDescCN("右肩切换快捷键")
+                    .SetDescEN("Shoulder Right Side Key")
+                    .SetGetValueFunc(() =>
+                    {
+                        return ShoulderCamera.shoulderRightSideKey;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.shoulderRightSideKey;
+                        ShoulderCamera.shoulderRightSideKey = value;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        ShoulderCamera.shoulderRightSideKey = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddKeybinding(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<int>().SetName("Fov")
+                    .SetDescCN("视野范围(FOV)")
+                    .SetDescEN("Field Of View")
+                    .SetGetValueFunc(() =>
+                    {
+                        return (int)ShoulderCamera.FOV;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        ShoulderCamera.FOV = value;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.FOV;
+                        ShoulderCamera.FOV = (int)value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddSlider(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            50, 114,
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<int>().SetName("RenderingDistance")
+                    .SetDescCN("渲染距离")
+                    .SetDescEN("Rendering Distance")
+                    .SetGetValueFunc(() =>
+                    {
+                        return ShoulderCamera.renderDistance;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        ShoulderCamera.renderDistance = value;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.renderDistance;
+                        ShoulderCamera.renderDistance = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddSlider(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            30, 300,
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<float>().SetName("RecoilMultiplier")
                     .SetDescCN("后坐力大小系数")
                     .SetDescEN("RecoilMultiplier")
                     .SetGetValueFunc(() =>
@@ -376,6 +376,169 @@ namespace ShoulderSurfing
                             isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
                             thisSettingObject.getValueFunc(),
                             thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                // 自定义小地图相关
+                new SettingObject<KeyCode>().SetName("CustomMinimapToggle")
+                    .SetDescCN("小地图开关快捷键")
+                    .SetDescEN("Minimap Toggle Key")
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.MinimapToggleKey;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.MinimapToggleKey = value;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : CustomMinimapManager.MinimapToggleKey;
+                        CustomMinimapManager.MinimapToggleKey = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddKeybinding(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<float>().SetName("CustomMinimapContainerScale")
+                    .SetDescCN("小地图容器缩放")
+                    .SetDescEN("Minimap Container Scale")
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.minimapContainerSizeScale;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.SetMinimapContainerScale(value);
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : CustomMinimapManager.minimapContainerSizeScale;
+                        CustomMinimapManager.minimapContainerSizeScale = value;
+                        // CustomMinimapManager.SetMinimapContainerScale(value);
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddSlider(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            new Vector2(0f, 3f),
+                            thisSettingObject.valueChangeFunc,
+                            2
+                        );
+                    }),
+                new SettingObject<KeyCode>().SetName("CustomMinimapInnerScaleUp")
+                    .SetDescCN("小地图放大快捷键")
+                    .SetDescEN("Minimap Scale Up Key")
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.displayZoomUpKey;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.displayZoomUpKey = value;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : CustomMinimapManager.displayZoomUpKey;
+                        CustomMinimapManager.displayZoomUpKey = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddKeybinding(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<KeyCode>().SetName("CustomMinimapInnerScaleDown")
+                    .SetDescCN("小地图缩小快捷键")
+                    .SetDescEN("Minimap Scale Down Key")
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.displayZoomDownKey;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.displayZoomDownKey = value;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : CustomMinimapManager.displayZoomDownKey;
+                        CustomMinimapManager.displayZoomDownKey = value;
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddKeybinding(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+
+                new SettingObject<float>().SetName("CustomMinimapPositionX")
+                    .SetDescCN("小地图X轴位置")
+                    .SetDescEN("MinimapXAxisPosition")
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.miniMapPositionOffset.x;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.miniMapPositionOffset.x = value;
+                        CustomMinimapManager.SetMinimapPosition();
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : CustomMinimapManager.miniMapPositionOffset.x;
+                        CustomMinimapManager.miniMapPositionOffset.x = value;
+                        CustomMinimapManager.SetMinimapPosition();
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddSlider(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            new Vector2(0, 1),
+                            thisSettingObject.valueChangeFunc,
+                            3
+                        );
+                    }),
+                new SettingObject<float>().SetName("CustomMinimapPositionY")
+                    .SetDescCN("小地图Y轴位置")
+                    .SetDescEN("MinimapYAxisPosition")
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.miniMapPositionOffset.y = value;
+                        CustomMinimapManager.SetMinimapPosition();
+                    })
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.miniMapPositionOffset.y;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : CustomMinimapManager.miniMapPositionOffset.y;
+                        CustomMinimapManager.miniMapPositionOffset.y = value;
+                        CustomMinimapManager.SetMinimapPosition();
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddSlider(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            new Vector2(0, 1),
+                            thisSettingObject.valueChangeFunc,
+                            3
                         );
                     }),
             };

@@ -109,6 +109,10 @@ public static class MiniMapDisplaySetupExtender
 	public static Image rangeCache;
 	public static void Postfix(MiniMapDisplay __instance)
 	{
+		if(__instance == CustomMinimapManager.Instance.DuplicatedMinimapDisplay)
+		{
+			return;
+		}
 		currentDisplay = __instance.gameObject;
 		Vector3 pos = __instance.GetComponent<RectTransform>().position;
 		if (MiniMapCommon.playerArrow != null)
