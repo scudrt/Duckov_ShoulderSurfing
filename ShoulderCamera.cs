@@ -7,6 +7,7 @@ using Cinemachine.Utility;
 using UnityEngine.InputSystem;
 using Duckov.Buildings.UI;
 using UnityEngine.SceneManagement;
+using Sirenix.OdinInspector;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
@@ -101,7 +102,12 @@ namespace ShoulderSurfing {
 			}
 		}
 
-		private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => DisableAllDOF();
+		private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+			if (!shoulderCameraToggled) {
+				return;
+			}
+			DisableAllDOF();
+		}
 
 		public void DisableCameraModeDOF() {
 			if (!Camera.main) {
@@ -132,6 +138,25 @@ namespace ShoulderSurfing {
 				if (volume.profile.TryGet<DepthOfField>(out dof) && dof) {
 					dof.active = false;
 				}
+			}
+		}
+
+		public void DisableAimOcclusionFade() {
+			// Disable aim occlusion fade in shoulder camera mode
+			OcclusionFadeManager fadeManager = OcclusionFadeManager.Instance;
+			if (fadeManager && fadeManager.aimOcclusionFadeChecker) {
+				fadeManager.aimOcclusionFadeChecker.transform.position = Vector3.one * 6666f;
+				fadeManager.aimOcclusionFadeChecker.transform.forward = Vector3.up;
+				fadeManager.aimOcclusionFadeChecker.gameObject.SetActive(false);
+			}
+			Shader.SetGlobalVector(aimPosHash, Vector3.one * 9999f);
+			Shader.SetGlobalVector(aimViewDirHash, Vector3.up);
+		}
+
+		public void EnableAimOcclusionFade() {
+			// Disable aim occlusion fade in shoulder camera mode
+			if (OcclusionFadeManager.Instance && OcclusionFadeManager.Instance.aimOcclusionFadeChecker) {
+				OcclusionFadeManager.Instance.aimOcclusionFadeChecker.gameObject.SetActive(true);
 			}
 		}
 
@@ -418,12 +443,16 @@ namespace ShoulderSurfing {
 
 			UpdateCollidedCameraPosition();
 
+			DisableAimOcclusionFade();
+
 			global::System.Action<global::GameCamera, global::CharacterMainControl> onCameraPosUpdate = global::GameCamera.OnCameraPosUpdate;
 			if (onCameraPosUpdate != null) {
 				onCameraPosUpdate(hookCamera, this.target);
 			}
 		}
 
+		int aimPosHash = Shader.PropertyToID("OC_AimPos");
+		int aimViewDirHash = Shader.PropertyToID("OC_AimViewDir");
 		CharacterMainControl target;
 
 		GameCamera hookCamera;
