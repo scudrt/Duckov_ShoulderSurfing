@@ -91,7 +91,7 @@ public class CustomStaminaHUD : MonoBehaviour
         CreateBackgroundCircle();
         CreateBarCircle();
         _UpdateBarPos(StaminaHUDExtender.staminaHUDOffset, canvas.GetComponent<RectTransform>());
-
+        UpdateScale(StaminaHUDExtender.staminaHUDScale);
         // 设置为不销毁，跨场景保持
         DontDestroyOnLoad(customCanvas);
 
