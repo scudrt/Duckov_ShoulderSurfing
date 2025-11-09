@@ -419,7 +419,7 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : CustomMinimapManager.minimapContainerSizeScale;
                         CustomMinimapManager.minimapContainerSizeScale = value;
-                        // CustomMinimapManager.SetMinimapContainerScale(value);
+                        CustomMinimapManager.SetMinimapContainerScale(value);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {

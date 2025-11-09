@@ -15,7 +15,7 @@ namespace ShoulderSurfing
         public static KeyCode displayZoomDownKey = KeyCode.Minus;
         public static KeyCode MinimapToggleKey = KeyCode.Alpha9;
 
-        public static float displayZoomScale = 1f;
+        public static float displayZoomScale = 2f;
         public static float displayZoomGap = 1f;
         public static Vector2 displayZoomRange = new Vector2(0.1f, 30);
         public static Vector2 miniMapPositionOffset = new Vector2(0.1f, 0.1f); // 左上角位置
@@ -30,6 +30,7 @@ namespace ShoulderSurfing
 
         private GameObject customCanvas;
         private GameObject miniMapContainer;
+        public GameObject miniMapScaleContainer;
         private GameObject duplicatedMinimapObject;
 
         public MiniMapDisplay DuplicatedMinimapDisplay
@@ -92,12 +93,13 @@ namespace ShoulderSurfing
 
         private void UpdateDisplayZoom() {
             duplicatedMinimapDisplay.transform.localScale = Vector3.one * displayZoomScale;
-            CallDisplayMethod("FitContent");
+            // CallDisplayMethod("FitContent");
         }
 
         public static void SetMinimapContainerScale(float scale)
         {
             minimapContainerSizeScale = scale;
+            Debug.Log($"设置小地图scale {minimapContainerSizeScale}");
             Instance._SetMinimapContainerScale();
             if (!HasMap())
                 return;
@@ -117,6 +119,7 @@ namespace ShoulderSurfing
         private static void SetMinimapPosition(Vector2 offset)
         {
             miniMapPositionOffset = offset;
+            // Debug.Log($"设置小地图位置 {miniMapPositionOffset}");
             Instance._SetMinimapPosition();
             if (!HasMap())
                 return;
@@ -125,7 +128,8 @@ namespace ShoulderSurfing
 
         private void _SetMinimapPosition()
         {
-            var parentRect = Instance.customCanvas.GetComponent<RectTransform>();
+            // var parentRect = customCanvas.GetComponent<RectTransform>();
+            var parentRect = GameManager.PauseMenu.GetComponent<RectTransform>();
             float parentWidth = parentRect.rect.width;
             float parentHeight = parentRect.rect.height;
             if (parentRect.rect.width <= 0 || parentRect.rect.height <= 0)
@@ -137,7 +141,8 @@ namespace ShoulderSurfing
             // x=0时，偏移为 -parentWidth/2（最左）；x=1时，偏移为 parentWidth/2（最右）
             float offsetX = (miniMapPositionOffset.x - 0.5f) * parentWidth;
             float offsetY = (miniMapPositionOffset.y - 0.5f) * parentHeight;
-            Instance.miniMapRect.anchoredPosition = new Vector2(offsetX, offsetY);
+            // Debug.Log($"设置小地图位置 {miniMapPositionOffset} 偏移量 {offsetX} {offsetY} {parentWidth}x{parentHeight}");
+            miniMapRect.anchoredPosition = new Vector2(offsetX, offsetY);
         }
 
         public CustomMinimapManager()
@@ -169,6 +174,7 @@ namespace ShoulderSurfing
             Debug.Log($"初始化场景 {scene} {mode}");
             if (initMapCor != null)
                 ModBehaviour.Instance.StopCoroutine(initMapCor);
+            customCanvas.SetActive(false);
             initMapCor = ModBehaviour.Instance.StartCoroutine(InitializeMiniMap());
         }
 
@@ -200,6 +206,7 @@ namespace ShoulderSurfing
             yield return new WaitForSecondsRealtime(0.5f);
             Debug.Log("初始化小地图");
             _InitializeMiniMap();
+            customCanvas.SetActive(true);
         }
 
         public void _InitializeMiniMap()
@@ -231,17 +238,18 @@ namespace ShoulderSurfing
             scaler.referenceResolution = new Vector2(2560, 1440);
 
             // // 创建 CanvasGroup 用于控制透明度
-            // canvasGroup = customCanvas.AddComponent<CanvasGroup>();
+            customCanvas.AddComponent<CanvasGroup>();
             // 创建小地图UI容器
             miniMapContainer = new GameObject("MiniMapContainer");
             miniMapRect = miniMapContainer.AddComponent<RectTransform>();
-            miniMapContainer.transform.SetParent(targetCanvas.transform);
+            miniMapContainer.transform.SetParent(customCanvas.transform);
 
             // 设置位置和大小（左上角）
             miniMapRect.anchorMin = new Vector2(0.5f, 0.5f);
             miniMapRect.anchorMax = new Vector2(0.5f, 0.5f);
             miniMapRect.pivot = new Vector2(0.5f, 0.5f);
             miniMapRect.sizeDelta = miniMapSize;
+            miniMapRect.anchoredPosition = Vector2.zero;
             _SetMinimapPosition();
             _SetMinimapContainerScale();
 
@@ -253,6 +261,12 @@ namespace ShoulderSurfing
             // 创建遮罩区域
             GameObject viewportObject = new GameObject("MiniMapViewport");
             minimapViewportRect = viewportObject.AddComponent<RectTransform>();
+
+            miniMapScaleContainer = new GameObject("test");
+            var scaleRect = miniMapScaleContainer.AddComponent<RectTransform>();
+            scaleRect.localScale = Vector3.one * 0.5f;
+            scaleRect.SetParent(minimapViewportRect);
+
             viewportObject.AddComponent<Image>().color = Color.clear; // 透明背景
             RectMask2D rectMask = viewportObject.AddComponent<RectMask2D>();
 
@@ -350,7 +364,7 @@ namespace ShoulderSurfing
 
         private void SetupDuplicatedMinimap()
         {
-            duplicatedMinimapObject.transform.SetParent(minimapViewportRect);
+            duplicatedMinimapObject.transform.SetParent(miniMapScaleContainer.transform);
             RectTransform rectTransform = duplicatedMinimapObject.GetComponent<RectTransform>();
             CallDisplayMethod("AutoSetup");
             if (rectTransform != null)
