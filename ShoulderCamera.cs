@@ -16,7 +16,41 @@ namespace ShoulderSurfing {
 		public static bool shoulderCameraInitalized = false;
 
 		public static bool isMiniGameEnabled = false;
-		public static Vector3 ShoulderCameraOffset = new Vector3(1f, 1.25f, -2.8f);
+		public static float shoulderCameraOffsetX {
+			get {
+				return __shoulderCameraOffsetX;
+			} set {
+				__shoulderCameraOffsetX = value;
+				if (Instance) {
+					Instance.UpdateCameraTargetPos();
+				}
+			}
+		}
+		public static float shoulderCameraOffsetY {
+			get {
+				return __shoulderCameraOffsetY;
+			}
+			set {
+				__shoulderCameraOffsetY = value;
+				if (Instance) {
+					Instance.UpdateCameraTargetPos();
+				}
+			}
+		}
+		public static float shoulderCameraOffsetZ {
+			get {
+				return __shoulderCameraOffsetZ;
+			}
+			set {
+				__shoulderCameraOffsetZ = value;
+				if (Instance) {
+					Instance.UpdateCameraTargetPos();
+				}
+			}
+		}
+		private static float __shoulderCameraOffsetX = 1f;
+		private static float __shoulderCameraOffsetY = 1f;
+		private static float __shoulderCameraOffsetZ = -2.8f;
 
 		public static int renderDistance {
 			get {
@@ -313,7 +347,12 @@ namespace ShoulderSurfing {
 			} else if (Input.GetKeyDown(shoulderRightSideKey)) {
 				IsLeftShoulder = false;
 			}
-			targetShoulderCameraOffset.x = Math.Abs(targetShoulderCameraOffset.x) * (IsLeftShoulder ? -1f : 1f);
+		}
+
+		void UpdateCameraTargetPos() {
+			targetShoulderCameraOffset.x = __shoulderCameraOffsetX * (IsLeftShoulder ? -1f : 1f);
+			targetShoulderCameraOffset.y = __shoulderCameraOffsetY;
+			targetShoulderCameraOffset.z = __shoulderCameraOffsetZ;
 		}
 
 		void UpdateCollidedCameraPosition() {
@@ -322,11 +361,14 @@ namespace ShoulderSurfing {
 			Vector3 cameraRight = Vector3.Cross(Vector3.up, cameraForward);
 			Vector3 anchorPos = target.transform.position + anchorOffset;
 
+			UpdateCameraTargetPos();
+
 			// Updating camera position with smooth lerp
 			// v1.0: (1, 1.75, -2.8)
 			// v1.1: (1, 1.25, -2.8)
+			// v1.2: (1, 1.00, -2.8)
 			Vector3 cameraMoveOffset = targetShoulderCameraOffset - currentShoulderCameraOffset;
-			float camPosDeltaThisFrame = Time.deltaTime * cameraLerpSpeed;
+			float camPosDeltaThisFrame = Time.unscaledDeltaTime * cameraLerpSpeed;
 			if (cameraMoveOffset.magnitude > camPosDeltaThisFrame) {
 				currentShoulderCameraOffset += cameraMoveOffset.normalized * camPosDeltaThisFrame;
 			} else {
@@ -379,21 +421,38 @@ namespace ShoulderSurfing {
 
 			RehookCamera();
 
-			HandleShoulderSideSwitch();
-
-			// View switch
-			if (Keyboard.current.f7Key.wasPressedThisFrame
-				|| (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.commaKey.wasPressedThisFrame) || Input.GetKeyDown(switchShoulderCameraKey)) {
-				shoulderCameraToggled = !shoulderCameraToggled;
+			/*
+			if (Keyboard.current.vKey.wasPressedThisFrame) {
+				Ray r = mainCamera.ScreenPointToRay(new Vector2(Screen.width * 0.5f, Screen.height * 0.5f));
+				r.origin = target.transform.position + mainCamera.transform.forward;
+				RaycastHit hitinfo;
+				if (Physics.Raycast(r, out hitinfo, 100f)) {
+					Debug.Log("test hit " + hitinfo.collider.name + " " + hitinfo.collider.gameObject.layer + " " + LayerMask.LayerToName(hitinfo.collider.gameObject.layer));
+				} else {
+					Debug.Log("no hit");
+				}
 			}
+			*/
 
-			// Map 
-			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.slashKey.wasPressedThisFrame) {
-				MiniMapCommon.isMapRotateWithCamera = !MiniMapCommon.isMapRotateWithCamera;
-			}
-			// Temporary recoil switch
-			if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
-				InputManagerExtenderCommon.ShoulderRecoilMultiplier = InputManagerExtenderCommon.ShoulderRecoilMultiplier <= 0f ? InputManagerExtenderCommon.DefaultShoulderRecoilMultiplier : 0f;
+			// Update and handle player keyboard input state
+			isInputActiveLastFrame = isInputActiveForCamera;
+			isInputActiveForCamera = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
+			if (isInputActiveForCamera) {
+				HandleShoulderSideSwitch();
+
+				// View switch
+				if (Input.GetKeyDown(switchShoulderCameraKey) || (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.commaKey.wasPressedThisFrame)) {
+					shoulderCameraToggled = !shoulderCameraToggled;
+				}
+
+				// Map 
+				if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.slashKey.wasPressedThisFrame) {
+					MiniMapCommon.isMapRotateWithCamera = !MiniMapCommon.isMapRotateWithCamera;
+				}
+				// Temporary recoil switch
+				if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
+					InputManagerExtenderCommon.ShoulderRecoilMultiplier = InputManagerExtenderCommon.ShoulderRecoilMultiplier <= 0f ? InputManagerExtenderCommon.DefaultShoulderRecoilMultiplier : 0f;
+				}
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
@@ -416,10 +475,9 @@ namespace ShoulderSurfing {
 			}
 
 			// Update camera rotation by player input
-			if (Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance) { // No camera rotation while the game is paused or the inventory is open
-				if (!isInputActiveLastFrame) {
-					// Freeze input and camera rotation for one frame after input is active
-				} else {
+			if (isInputActiveForCamera) { // No camera rotation while the game is paused or the inventory is open
+				// Freeze input and camera rotation for one frame after input is active
+				if (isInputActiveLastFrame) {
 					// Update mouse delta to the rotation
 					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
 					// Shoulder surfing is more sensitive than the origin, so we use 0.01
@@ -431,10 +489,6 @@ namespace ShoulderSurfing {
 					cameraYaw += currentMouseDelta.x;
 					cameraPitch = Mathf.Clamp(cameraPitch + cameraShakePitchThisFrame + currentMouseDelta.y, -70f, 70f);
 				}
-
-				isInputActiveLastFrame = true;
-			} else {
-				isInputActiveLastFrame = false;
 			}
 
 			mainCamera.fieldOfView = hookCamera.mainVCam.m_Lens.FieldOfView;
@@ -464,11 +518,12 @@ namespace ShoulderSurfing {
 		// Camera position lerp while switching shoulder side
 		const float cameraLerpSpeed = 5f;
 		Vector3 currentShoulderCameraOffset;
-		Vector3 targetShoulderCameraOffset = new Vector3(1f, 1f, -2.8f);
+		Vector3 targetShoulderCameraOffset;
 		Vector3 anchorOffset = Vector3.up * 0.75f;
 
 		int cameraCollisionLayerMask;
 		bool isInputActiveLastFrame = false;
+		bool isInputActiveForCamera = false;
 
 		private float cameraPitch = 0f;
 		private float cameraYaw = 0f;
