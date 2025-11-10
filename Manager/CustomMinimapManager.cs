@@ -109,7 +109,7 @@ namespace ShoulderSurfing
         public static void SetMinimapContainerScale(float scale)
         {
             minimapContainerSizeScale = scale;
-            Debug.Log($"设置小地图scale {minimapContainerSizeScale}");
+            // Debug.Log($"设置小地图scale {minimapContainerSizeScale}");
             Instance._SetMinimapContainerScale();
             if (!HasMap())
                 return;
