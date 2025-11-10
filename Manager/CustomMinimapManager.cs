@@ -11,7 +11,7 @@ namespace ShoulderSurfing
     {
         public static Vector2 miniMapSize = new Vector2(200, 200);
         public static float minimapContainerSizeScale = 1f;
-        public static KeyCode displayZoomUpKey = KeyCode.Plus;
+        public static KeyCode displayZoomUpKey = KeyCode.Equals;
         public static KeyCode displayZoomDownKey = KeyCode.Minus;
         public static KeyCode MinimapToggleKey = KeyCode.Alpha9;
 
@@ -413,7 +413,7 @@ namespace ShoulderSurfing
                 if (autoSetupMethod != null)
                 {
                     autoSetupMethod.Invoke(duplicatedMinimapDisplay, null);
-                    Debug.Log($"{methodName} method called successfully on duplicated minimap.");
+                    // Debug.Log($"{methodName} method called successfully on duplicated minimap.");
                 }
                 else
                 {
