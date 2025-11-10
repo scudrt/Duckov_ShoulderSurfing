@@ -78,9 +78,16 @@ namespace ShoulderSurfing {
 			ApplyHarmonyExtenders();
 			ShoulderCamera.EnableTPSMode(this.gameObject);
             ModManager.OnModActivated += ModManager_OnModActivated;
-            ModManager.OnModWillBeDeactivated += ModManager_OnModWillBeDeactivated;
+			ModManager.OnModWillBeDeactivated += ModManager_OnModWillBeDeactivated;
+			LevelManager.OnEvacuated += OnEvacuated; 
 			new CustomMinimapManager();
 		}
+
+		void OnEvacuated(EvacuationInfo _info)
+		{
+			CustomMinimapManager.Hide();
+			StaminaHUDExtender.HideCustomStaminaHUD();
+        }
 
 		void OnDisable()
 		{

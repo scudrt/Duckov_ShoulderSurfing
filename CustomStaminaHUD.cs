@@ -304,6 +304,14 @@ public class StaminaHUDExtender
     public static Vector2 staminaHUDOffset = new Vector2(0.28f, 0.26f);
     public static float staminaHUDScale = 1f;
 
+    public static void HideCustomStaminaHUD()
+    {
+        if (modObject)
+        {
+            modObject.GetComponent<CustomStaminaHUD>().Hide();
+        }
+    }
+
     public static void UpdateCustomHUDOffset()
     {
         if (modObject)

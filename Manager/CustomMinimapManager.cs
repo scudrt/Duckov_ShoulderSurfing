@@ -60,6 +60,16 @@ namespace ShoulderSurfing
             }
         }
 
+        public static void Hide()
+        {
+            if (Instance == null)
+                return;
+            if (Instance.customCanvas != null)
+            {
+                Instance.customCanvas.SetActive(false);
+            }
+        }
+
         public void StartSetting()
         {
             miniMapContainer.transform.SetParent(GameManager.PauseMenu.transform);
@@ -168,6 +178,7 @@ namespace ShoulderSurfing
         {
             if (LevelManager.Instance == null)
             {
+                customCanvas.SetActive(false);
                 return;
             }
             ClearMap();
@@ -199,6 +210,7 @@ namespace ShoulderSurfing
 
             // 每帧更新小地图位置
             UpdateMiniMapPosition();
+            CallDisplayMethod("SetupRotation");
         }
 
         public IEnumerator InitializeMiniMap()
@@ -377,7 +389,7 @@ namespace ShoulderSurfing
             }
 
             duplicatedMinimapObject.transform.localPosition = Vector3.zero;
-            duplicatedMinimapObject.transform.localRotation = Quaternion.identity;
+            duplicatedMinimapDisplay.transform.localRotation = Quaternion.identity;
             UpdateDisplayZoom();
             // 禁用可能干扰的交互组件
             // DisableInterferenceComponents();
@@ -438,23 +450,23 @@ namespace ShoulderSurfing
 
         private void UpdateMiniMapPosition()
         {
-			CharacterMainControl main = CharacterMainControl.Main;
+            CharacterMainControl main = CharacterMainControl.Main;
             if (main == null)
             {
                 return;
             }
-			Vector3 minimapPos;
-			if (!duplicatedMinimapDisplay.TryConvertWorldToMinimap(main.transform.position, SceneInfoCollection.GetSceneID(SceneManager.GetActiveScene().buildIndex), out minimapPos))
-			{
-				return;
-			}
-			RectTransform rectTransform = duplicatedMinimapDisplay.transform as RectTransform;
-			if (rectTransform == null)
-			{
-				return;
-			}
-			Vector3 b = rectTransform.localToWorldMatrix.MultiplyPoint(minimapPos);
-			Vector3 b2 = (rectTransform.parent as RectTransform).position - b;
+            Vector3 minimapPos;
+            if (!duplicatedMinimapDisplay.TryConvertWorldToMinimap(main.transform.position, SceneInfoCollection.GetSceneID(SceneManager.GetActiveScene().buildIndex), out minimapPos))
+            {
+                return;
+            }
+            RectTransform rectTransform = duplicatedMinimapDisplay.transform as RectTransform;
+            if (rectTransform == null)
+            {
+                return;
+            }
+            Vector3 b = rectTransform.localToWorldMatrix.MultiplyPoint(minimapPos);
+            Vector3 b2 = (rectTransform.parent as RectTransform).position - b;
             rectTransform.position += b2;
         }
 
