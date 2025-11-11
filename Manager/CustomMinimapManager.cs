@@ -76,6 +76,16 @@ namespace ShoulderSurfing
             }
         }
 
+        public static void TryShow()
+        {
+            if (Instance == null)
+                return;
+            if (Instance.customCanvas != null && isOpen)
+            {
+                Instance.customCanvas.SetActive(true);
+            }
+        }
+
         public static void Hide()
         {
             if (Instance == null)

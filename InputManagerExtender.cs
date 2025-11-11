@@ -135,3 +135,68 @@ public static class InputManagerExtender {
 		__instance.characterMainControl.SetAimPoint(hitpos);
 	}
 }
+
+[HarmonyPatch(typeof(InputManager))]
+[HarmonyPatch("ActiveInput")]
+public static class InputManagerActiveInputExtender
+{
+	private static FieldInfo blockInputSourcesField;
+	private static bool isFieldInfoInitialized = false;
+
+	// Postfix 补丁，在原方法执行后运行
+	public static void Postfix()
+	{
+		int count = GetBlockInputSourcesCount(LevelManager.Instance.InputManager);
+		// Debug.Log("结束动作");
+		if (count <= 0)
+			CustomMinimapManager.TryShow();
+	}
+
+    private static void InitializeFieldInfo()
+    {
+        if (isFieldInfoInitialized) return;
+        
+        try
+        {
+			blockInputSourcesField = typeof(InputManager).GetField("blockInputSources", BindingFlags.NonPublic | BindingFlags.Instance);
+			isFieldInfoInitialized = true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error initializing field info: {e.Message}");
+        }
+    }
+    
+    public static int GetBlockInputSourcesCount(InputManager inputManager)
+    {
+        if (inputManager == null) return 0;
+        
+        if (!isFieldInfoInitialized)
+        {
+            InitializeFieldInfo();
+        }
+        
+        if (blockInputSourcesField == null) return 0;
+        
+        try
+        {
+            object blockInputSourcesValue = blockInputSourcesField.GetValue(inputManager);
+            
+            if (blockInputSourcesValue != null)
+            {
+                PropertyInfo countProperty = blockInputSourcesValue.GetType().GetProperty("Count");
+                if (countProperty != null)
+                {
+                    return (int)countProperty.GetValue(blockInputSourcesValue);
+                }
+            }
+            
+            return 0;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error getting blockInputSources count: {e.Message}");
+            return 0;
+        }
+    }
+}
