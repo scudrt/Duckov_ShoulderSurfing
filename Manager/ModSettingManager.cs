@@ -379,8 +379,33 @@ namespace ShoulderSurfing
                         );
                     }),
                 // 自定义小地图相关
+                new SettingObject<bool>().SetName("CustomMinimapOpen")
+                    .SetDescCN("是否启用小地图功能")
+                    .SetDescEN("Minimap Open")
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.isOpen;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.Open(value);
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : CustomMinimapManager.isOpen;
+                        CustomMinimapManager.Open(value);
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddToggle(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
                 new SettingObject<KeyCode>().SetName("CustomMinimapToggle")
-                    .SetDescCN("小地图开关快捷键")
+                    .SetDescCN("小地图临时开关快捷键")
                     .SetDescEN("Minimap Toggle Key")
                     .SetGetValueFunc(() =>
                     {

@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using Duckov.Buildings.UI;
 using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
+using ECM2;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
@@ -85,17 +86,47 @@ namespace ShoulderSurfing {
 			__Instance = null;
 		}
 
-		public void RehookCamera() {
-			if (hookCamera != null && mainCamera != null) {
+		public static Vector3 CameraForward
+		{
+			get
+			{
+				if (shoulderCameraInitalized)
+				{
+					// var tmp = Instance.mainCamera.transform.forward;
+					// tmp.y = 0f;
+					return new Vector3(Mathf.Sin(Instance.cameraYaw * Mathf.Deg2Rad), 0, Mathf.Cos(Instance.cameraYaw * Mathf.Deg2Rad));
+				}
+				else
+				{
+					if (LevelManager.Instance == null)
+					{
+						return new Vector3(Mathf.Sin(Instance.cameraYaw * Mathf.Deg2Rad), 0, Mathf.Cos(Instance.cameraYaw * Mathf.Deg2Rad));
+					}
+					if (LevelManager.Instance.GameCamera == null)
+					{
+						return new Vector3(Mathf.Sin(Instance.cameraYaw * Mathf.Deg2Rad), 0, Mathf.Cos(Instance.cameraYaw * Mathf.Deg2Rad));
+					}
+					// return LevelManager.Instance.GameCamera.renderCamera.WorldToScreenPoint(LevelManager.Instance.InputManager.InputAimPoint);
+					return LevelManager.Instance.InputManager.InputAimPoint - CharacterMainControl.Main.transform.position;
+				}
+			}
+		}
+
+		public void RehookCamera()
+		{
+			if (hookCamera != null && mainCamera != null)
+			{
 				return;
 			}
 
 			this.hookCamera = GameCamera.Instance;
-			if (hookCamera == null) {
+			if (hookCamera == null)
+			{
 				return;
 			}
 
-			if (shoulderCameraToggled) {
+			if (shoulderCameraToggled)
+			{
 				// The camera should be reinitialized after loading maps in shoulder mode
 				shoulderCameraInitalized = false;
 				OnShoulderCameraEnable();

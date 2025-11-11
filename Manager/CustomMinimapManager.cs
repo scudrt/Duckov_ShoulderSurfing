@@ -9,6 +9,7 @@ namespace ShoulderSurfing
 {
     public class CustomMinimapManager
     {
+        public static bool isOpen = false;
         public static Vector2 miniMapSize = new Vector2(200, 200);
         public static float minimapContainerSizeScale = 1f;
         public static KeyCode displayZoomUpKey = KeyCode.Equals;
@@ -18,7 +19,7 @@ namespace ShoulderSurfing
         public static float displayZoomScale = 2f;
         public static float displayZoomGap = 1f;
         public static Vector2 displayZoomRange = new Vector2(0.1f, 30);
-        public static Vector2 miniMapPositionOffset = new Vector2(0.1f, 0.1f); // 左上角位置
+        public static Vector2 miniMapPositionOffset = new Vector2(0.85f, 0.1f); // 左上角位置
 
         public static CustomMinimapManager Instance;
 
@@ -49,7 +50,7 @@ namespace ShoulderSurfing
 
         public static void CheckToggleKey()
         {
-            if (!HasMap())
+            if (!(isOpen && Instance != null && Instance.duplicatedMinimapObject != null))
                 return;
             if (Input.GetKeyDown(MinimapToggleKey))
             {
@@ -57,6 +58,21 @@ namespace ShoulderSurfing
                 {
                     Instance.customCanvas.SetActive(!Instance.customCanvas.activeInHierarchy);
                 }
+            }
+        }
+        
+        public static void Open(bool open)
+        {
+            isOpen = open;
+            if (isOpen)
+            {
+                Instance._InitializeMiniMap();
+                Instance.customCanvas.SetActive(true);
+            }
+            else
+            {
+                Instance.customCanvas.SetActive(false);
+                Instance.ClearMap();
             }
         }
 
@@ -89,7 +105,7 @@ namespace ShoulderSurfing
 
         public static bool HasMap()
         {
-            return Instance != null && Instance.duplicatedMinimapObject != null;
+            return isOpen && Instance != null && Instance.duplicatedMinimapObject != null && Instance.customCanvas.activeInHierarchy;
         }
 
         public static void DisplayZoom(int symbol)
@@ -176,7 +192,7 @@ namespace ShoulderSurfing
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (LevelManager.Instance == null)
+            if (LevelManager.Instance == null || !isOpen)
             {
                 customCanvas.SetActive(false);
                 return;
@@ -209,8 +225,9 @@ namespace ShoulderSurfing
             }
 
             // 每帧更新小地图位置
-            UpdateMiniMapPosition();
             CallDisplayMethod("SetupRotation");
+            UpdateMiniMapRotation();
+            UpdateMiniMapPosition();
         }
 
         public IEnumerator InitializeMiniMap()
@@ -242,7 +259,7 @@ namespace ShoulderSurfing
             customCanvas = new GameObject("CustomMinimapCanvas");
             var targetCanvas = customCanvas.AddComponent<Canvas>();
             targetCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            targetCanvas.sortingOrder = 1000; // 确保在最前面
+            targetCanvas.sortingOrder = 0; // 确保在最前面
 
             // 添加 CanvasScaler 用于适应不同分辨率
             CanvasScaler scaler = customCanvas.AddComponent<CanvasScaler>();
@@ -447,6 +464,18 @@ namespace ShoulderSurfing
         //         }
         //     }
         // }
+
+        private void UpdateMiniMapRotation()
+        {
+            if (MiniMapCommon.isMapRotateWithCamera) {
+                Vector3 to = ShoulderCamera.CameraForward;
+                float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
+                duplicatedMinimapDisplay.transform.rotation = Quaternion.Euler(0, 0, currentMapZRotation);
+            } else {
+                duplicatedMinimapDisplay.transform.rotation = Quaternion.Euler(0f, 0f, MiniMapCompassExtender.originMapZRotation);
+            }
+
+        }
 
         private void UpdateMiniMapPosition()
         {
