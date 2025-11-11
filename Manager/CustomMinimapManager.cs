@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using Duckov.MiniMaps.UI;
+using Duckov.UI.MainMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,7 +10,8 @@ namespace ShoulderSurfing
 {
     public class CustomMinimapManager
     {
-        public static bool isOpen = false;
+        public static bool isEnabled = false; // 设置是否启用
+        public static bool isToggled = false; // 快捷键开关状态
         public static Vector2 miniMapSize = new Vector2(200, 200);
         public static float minimapContainerSizeScale = 1f;
         public static KeyCode displayZoomUpKey = KeyCode.Equals;
@@ -50,21 +52,22 @@ namespace ShoulderSurfing
 
         public static void CheckToggleKey()
         {
-            if (!(isOpen && Instance != null && Instance.duplicatedMinimapObject != null))
+            if (!(isEnabled && Instance != null && Instance.duplicatedMinimapObject != null))
                 return;
             if (Input.GetKeyDown(MinimapToggleKey))
             {
-                if (Instance.customCanvas != null)
-                {
-                    Instance.customCanvas.SetActive(!Instance.customCanvas.activeInHierarchy);
+                if (Instance.customCanvas != null) {
+                    isToggled = !isToggled;
+					Instance.customCanvas.SetActive(isToggled);
                 }
             }
         }
         
-        public static void Open(bool open)
+        public static void Enable(bool enable)
         {
-            isOpen = open;
-            if (isOpen)
+            isEnabled = enable;
+            isToggled = enable;
+            if (isEnabled)
             {
                 Instance._InitializeMiniMap();
                 Instance.customCanvas.SetActive(true);
@@ -80,7 +83,7 @@ namespace ShoulderSurfing
         {
             if (Instance == null)
                 return;
-            if (Instance.customCanvas != null && isOpen)
+            if (Instance.customCanvas != null && isEnabled)
             {
                 Instance.customCanvas.SetActive(true);
             }
@@ -115,7 +118,7 @@ namespace ShoulderSurfing
 
         public static bool HasMap()
         {
-            return isOpen && Instance != null && Instance.duplicatedMinimapObject != null && Instance.customCanvas.activeInHierarchy;
+            return isEnabled && Instance != null && Instance.duplicatedMinimapObject != null && Instance.customCanvas.activeInHierarchy;
         }
 
         public static void DisplayZoom(int symbol)
@@ -202,7 +205,7 @@ namespace ShoulderSurfing
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (LevelManager.Instance == null || !isOpen)
+            if (LevelManager.Instance == null || !isEnabled)
             {
                 customCanvas.SetActive(false);
                 return;
@@ -221,10 +224,38 @@ namespace ShoulderSurfing
             duplicatedMinimapObject = null;
         }
 
-        public void Update()
-        {
-            if (!HasMap())
+        void HandleUIBlockState(ref bool minimapIsOn) {
+			bool inputActive = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
+			if (!inputActive) {
+				// Hide minimap when UI is on
+				if (minimapIsOn) {
+					Hide();
+					minimapIsOn = false;
+				}
+			} else {
+				// Recover minimap state when shoulder camera is under control
+				if (!minimapIsOn && isToggled) {
+					TryShow();
+					minimapIsOn = true;
+				} else if (minimapIsOn && !isToggled) {
+					Hide();
+					minimapIsOn = false;
+				}
+			}
+		}
+
+        public void Update() {
+            if (!LevelManager.LevelInited) {
                 return;
+            }
+
+			bool minimapIsOn = HasMap();
+            HandleUIBlockState(ref minimapIsOn);
+			if (!minimapIsOn) {
+                return;
+            }
+
+            // Update minimap if active
             if (Input.GetKeyDown(displayZoomDownKey))
             {
                 DisplayZoom(-1);

@@ -13,7 +13,7 @@ public static class CharacterMainControlStartActionExtender
     // Postfix 补丁，在原方法执行后运行
     public static void Postfix(CharacterMainControl __instance, CharacterActionBase newAction, bool __result)
     {
-        if (!CustomMinimapManager.isOpen)
+        if (!CustomMinimapManager.isEnabled)
             return;
         // 保存结果供其他代码使用
         lastActionResult = __result;

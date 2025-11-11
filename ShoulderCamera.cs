@@ -132,7 +132,7 @@ namespace ShoulderSurfing {
 				}
 				else
 				{
-					if (LevelManager.Instance == null)
+					if (!LevelManager.LevelInited)
 					{
 						return new Vector3(Mathf.Sin(Instance.cameraYaw * Mathf.Deg2Rad), 0, Mathf.Cos(Instance.cameraYaw * Mathf.Deg2Rad));
 					}
@@ -411,6 +411,12 @@ namespace ShoulderSurfing {
 			Vector3 camDir = camOffset.normalized;
 			float camDistance = camOffset.magnitude;
 
+			// Hide character to avoid view occlusion by character
+			/*bool canShowTarget = camDistance > 0.75f;
+			if (simpleHideTarget && simpleHideTarget.gameObject.activeSelf != canShowTarget) {
+				simpleHideTarget.gameObject.SetActive(canShowTarget);
+			}*/
+
 			// Handle camera collision
 			Ray shoulderCameraRay = new Ray(anchorPos, camDir);
 			RaycastHit hitinfo;
@@ -437,7 +443,7 @@ namespace ShoulderSurfing {
 		}
 
 		void Update() {
-			if (LevelManager.Instance == null) {
+			if (!LevelManager.LevelInited) {
 				return;
 			}
 
@@ -486,23 +492,26 @@ namespace ShoulderSurfing {
 				}
 			}
 
+			if (target == null) {
+				target = CharacterMainControl.Main;
+				if (target) {
+					simpleHideTarget = target.transform.Find("ModelRoot/0_CharacterModel_Custom_Template(Clone)");
+				}
+			}
+
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
 				OnShoulderCameraEnable();
 			} else if (!shoulderCameraToggled && shoulderCameraInitalized) {
 				OnShoulderCameraDisable();
 			}
-
-			if (target == null) {
-				target = CharacterMainControl.Main;
-			}
 		}
 
 		void LateUpdate() {
-			if (hookCamera == null || target == null || mainCamera == null) {
-				return; // Come in next frame :)
-			}
 			if (!shoulderCameraToggled || !shoulderCameraInitalized) {
 				return;
+			}
+			if (hookCamera == null || target == null || mainCamera == null) {
+				return; // Come in next frame :)
 			}
 
 			// Update camera rotation by player input
@@ -551,6 +560,8 @@ namespace ShoulderSurfing {
 		Vector3 currentShoulderCameraOffset;
 		Vector3 targetShoulderCameraOffset;
 		Vector3 anchorOffset = Vector3.up * 0.75f;
+
+		Transform? simpleHideTarget;
 
 		int cameraCollisionLayerMask;
 		bool isInputActiveLastFrame = false;

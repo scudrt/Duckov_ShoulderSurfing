@@ -465,16 +465,16 @@ namespace ShoulderSurfing
                     .SetDescEN("Minimap Open")
                     .SetGetValueFunc(() =>
                     {
-                        return CustomMinimapManager.isOpen;
+                        return CustomMinimapManager.isEnabled;
                     })
                     .SetValueChangeFunc((value) =>
                     {
-                        CustomMinimapManager.Open(value);
+                        CustomMinimapManager.Enable(value);
                     })
                     .SetLoadFunc((thisSettingObject) =>
                     {
-                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : CustomMinimapManager.isOpen;
-                        CustomMinimapManager.Open(value);
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : CustomMinimapManager.isEnabled;
+                        CustomMinimapManager.Enable(value);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -680,7 +680,7 @@ namespace ShoulderSurfing
         {
             if (inited)
                 return;
-            if (LevelManager.Instance == null)
+            if (!LevelManager.LevelInited)
             {
                 return;
             }

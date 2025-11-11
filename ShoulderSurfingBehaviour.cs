@@ -47,8 +47,8 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(StaminaHUD), typeof(StaminaHUDExtender), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameStartExtender), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameEndExtender), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
-			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterMainControlStartActionExtender), "StartAction");
-			PatchSingleExtender(typeof(InputManager), typeof(InputManagerActiveInputExtender), "ActiveInput", BindingFlags.Static | BindingFlags.Public);
+			// PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterMainControlStartActionExtender), "StartAction");
+			// PatchSingleExtender(typeof(InputManager), typeof(InputManagerActiveInputExtender), "ActiveInput", BindingFlags.Static | BindingFlags.Public);
 			// PatchSingleExtender(typeof(Projectile), typeof(ProjectileExtender), "Init");
 		}
 		void CancelHarmonyExtender() {
@@ -64,8 +64,8 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(StaminaHUD), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
-			UnpatchSingleExtender(typeof(CharacterMainControl), "StartAction");
-			UnpatchSingleExtender(typeof(InputManager), "ActiveInput", BindingFlags.Static | BindingFlags.Public);
+			// UnpatchSingleExtender(typeof(CharacterMainControl), "StartAction");
+			// UnpatchSingleExtender(typeof(InputManager), "ActiveInput", BindingFlags.Static | BindingFlags.Public);
 			// UnpatchSingleExtender(typeof(Projectile), "Init");
 		}
 		void Awake()

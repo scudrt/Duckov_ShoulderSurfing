@@ -165,7 +165,7 @@ public class CustomStaminaHUD : MonoBehaviour
     
     private void Update()
     {
-        if (!LevelManager.Instance)
+        if (!LevelManager.LevelInited)
         {
             Hide();
             // Debug.Log("LevelManager is null");
