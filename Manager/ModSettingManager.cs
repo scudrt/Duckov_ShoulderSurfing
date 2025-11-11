@@ -239,6 +239,87 @@ namespace ShoulderSurfing
                             2
                         );
                     }),
+				new SettingObject<float>().SetName("CameraOffsetLeftRight")
+					.SetDescCN("相机左/右偏移量")
+					.SetDescEN("Camera Offset Left/Right")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.shoulderCameraOffsetX;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : ShoulderCamera.shoulderCameraOffsetX;
+						ShoulderCamera.shoulderCameraOffsetX = value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.shoulderCameraOffsetX = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddSlider(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							new Vector2(0, 3),
+							thisSettingObject.valueChangeFunc,
+							2
+						);
+					}),
+				new SettingObject<float>().SetName("CameraOffsetUp")
+					.SetDescCN("相机上偏移量")
+					.SetDescEN("Camera Offset Up")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.shoulderCameraOffsetY;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : ShoulderCamera.shoulderCameraOffsetY;
+						ShoulderCamera.shoulderCameraOffsetY = value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.shoulderCameraOffsetY = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddSlider(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							new Vector2(0, 3),
+							thisSettingObject.valueChangeFunc,
+							2
+						);
+					}),
+				new SettingObject<float>().SetName("CameraOffsetBackward")
+					.SetDescCN("相机后偏移量")
+					.SetDescEN("Camera Offset Backward")
+					.SetGetValueFunc(() =>
+					{
+						return -ShoulderCamera.shoulderCameraOffsetZ;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : -ShoulderCamera.shoulderCameraOffsetZ;
+						ShoulderCamera.shoulderCameraOffsetZ = -value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.shoulderCameraOffsetZ = -value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddSlider(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							new Vector2(0, 6),
+							thisSettingObject.valueChangeFunc,
+							2
+						);
+					}),
 
                 new SettingObject<float>().SetName("MapIndicatorAlpha")
                     .SetDescCN("地图指示器透明度")

@@ -69,7 +69,7 @@ public static class InputManagerExtender {
 		CenterOfScreen.x = Screen.width  * 0.5f;
 		CenterOfScreen.y = Screen.height * 0.5f;
 
-		bool playerTryControlRecoil = mouseDelta.x != 0f || mouseDelta.y != 0f;
+		bool playerTryControlRecoil = mouseDelta.y < 0f;
 		// Make cursor always be on the center of screen
 		targetMousePos = CenterOfScreen;
 
