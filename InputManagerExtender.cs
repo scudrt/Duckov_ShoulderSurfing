@@ -146,6 +146,8 @@ public static class InputManagerActiveInputExtender
 	// Postfix 补丁，在原方法执行后运行
 	public static void Postfix()
 	{
+		if (!CustomMinimapManager.isOpen)
+			return;
 		int count = GetBlockInputSourcesCount(LevelManager.Instance.InputManager);
 		// Debug.Log("结束动作");
 		if (count <= 0)
