@@ -365,6 +365,7 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : StaminaHUDExtender.staminaHUDOffset.x;
                         StaminaHUDExtender.staminaHUDOffset.x = value;
+                        StaminaHUDExtender.UpdateCustomHUDOffset(true);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -393,6 +394,7 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : StaminaHUDExtender.staminaHUDOffset.y;
                         StaminaHUDExtender.staminaHUDOffset.y = value;
+                        StaminaHUDExtender.UpdateCustomHUDOffset(true);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -420,7 +422,7 @@ namespace ShoulderSurfing
                     .SetLoadFunc((thisSettingObject) =>
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : StaminaHUDExtender.staminaHUDScale;
-                        StaminaHUDExtender.staminaHUDScale = value;
+                        StaminaHUDExtender.UpdateCustomHUDScale(value, true);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {

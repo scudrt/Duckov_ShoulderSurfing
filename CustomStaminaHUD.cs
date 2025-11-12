@@ -43,17 +43,19 @@ public class CustomStaminaHUD : MonoBehaviour
         barRect.anchoredPosition = new Vector2(offsetX, offsetY);
     }
 
-    public void UpdateBarPos(Vector2 offset)
+    public void UpdateBarPos(Vector2 offset, bool isDirectSet = false)
     {
-        SetTempAlwayShow();
+        if (!isDirectSet)
+            SetTempAlwayShow();
         // 获取父RectTransform的实际宽度和高度
         _UpdateBarPos(offset, GameManager.PauseMenu.GetComponent<RectTransform>());
     }
 
-    public void UpdateScale(float scale)
+    public void UpdateScale(float scale, bool isDirectSet = false)
     {
         barObject.transform.localScale = Vector3.one * scale;
-        SetTempAlwayShow();
+        if (!isDirectSet)
+            SetTempAlwayShow();
     }
 
     public void SetTempAlwayShow()
@@ -312,20 +314,20 @@ public class StaminaHUDExtender
         }
     }
 
-    public static void UpdateCustomHUDOffset()
+    public static void UpdateCustomHUDOffset(bool isDirectSet = false)
     {
         if (modObject)
         {
-            modObject.GetComponent<CustomStaminaHUD>().UpdateBarPos(staminaHUDOffset);
+            modObject.GetComponent<CustomStaminaHUD>().UpdateBarPos(staminaHUDOffset, isDirectSet);
         }
     }
-    public static void UpdateCustomHUDScale(float scale)
+    public static void UpdateCustomHUDScale(float scale, bool isDirectSet = false)
     {
         if (modObject)
         {
             modObject.transform.localScale = Vector3.one * scale;
             staminaHUDScale = scale;
-            modObject.GetComponent<CustomStaminaHUD>().UpdateScale(scale);
+            modObject.GetComponent<CustomStaminaHUD>().UpdateScale(scale, isDirectSet);
         }
     }
 
