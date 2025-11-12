@@ -116,8 +116,14 @@ namespace ShoulderSurfing
             miniMapContainer.transform.SetParent(customCanvas.transform);
         }
 
+        public static bool IsInitialized()
+        {
+            return isEnabled && Instance != null && Instance.duplicatedMinimapObject != null;
+        }
+
         public static bool HasMap()
         {
+            // Debug.Log($"has map????:{Instance.duplicatedMinimapObject} {isEnabled && Instance != null && Instance.duplicatedMinimapObject != null && Instance.customCanvas.activeInHierarchy}");
             return isEnabled && Instance != null && Instance.duplicatedMinimapObject != null && Instance.customCanvas.activeInHierarchy;
         }
 
@@ -198,6 +204,7 @@ namespace ShoulderSurfing
 
         public void Destroy()
         {
+            Debug.Log($"destroy minimap container");
             GameObject.Destroy(miniMapContainer);
 			SceneManager.sceneLoaded -= OnSceneLoaded;
             Instance = null;
@@ -210,10 +217,10 @@ namespace ShoulderSurfing
                 customCanvas.SetActive(false);
                 return;
             }
-            ClearMap();
             Debug.Log($"初始化场景 {scene} {mode}");
             if (initMapCor != null)
                 ModBehaviour.Instance.StopCoroutine(initMapCor);
+            ClearMap();
             customCanvas.SetActive(false);
             initMapCor = ModBehaviour.Instance.StartCoroutine(InitializeMiniMap());
         }
@@ -224,22 +231,18 @@ namespace ShoulderSurfing
             duplicatedMinimapObject = null;
         }
 
-        void HandleUIBlockState(ref bool minimapIsOn) {
+        void HandleUIBlockState() {
+            bool minimapIsOn = IsInitialized();
 			bool inputActive = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
 			if (!inputActive) {
 				// Hide minimap when UI is on
-				if (minimapIsOn) {
-					Hide();
-					minimapIsOn = false;
-				}
+				Hide();
 			} else {
 				// Recover minimap state when shoulder camera is under control
-				if (!minimapIsOn && isToggled) {
+				if (minimapIsOn && isToggled) {
 					TryShow();
-					minimapIsOn = true;
 				} else if (minimapIsOn && !isToggled) {
 					Hide();
-					minimapIsOn = false;
 				}
 			}
 		}
@@ -249,12 +252,13 @@ namespace ShoulderSurfing
                 return;
             }
 
-			bool minimapIsOn = HasMap();
-            HandleUIBlockState(ref minimapIsOn);
+            HandleUIBlockState();
+            bool minimapIsOn = HasMap();
 			if (!minimapIsOn) {
                 return;
             }
 
+            // Debug.Log($"??:{duplicatedMinimapObject} {duplicatedMinimapObject != null} {minimapIsOn} {Instance} {Instance.customCanvas.activeInHierarchy}");
             // Update minimap if active
             if (Input.GetKeyDown(displayZoomDownKey))
             {

@@ -95,12 +95,14 @@ namespace ShoulderSurfing {
 
 		void OnDisable()
 		{
+			// Debug.Log($"disable mod {MOD_NAME}");
 			CancelHarmonyExtender();
 			StaminaHUDExtender.Unload();
 			ShoulderCamera.DisableTPSMode(this.gameObject);
             ModManager.OnModActivated -= ModManager_OnModActivated;
 			ModManager.OnModWillBeDeactivated -= ModManager_OnModWillBeDeactivated;
 			CustomMinimapManager.Instance.Destroy();
+			ModSettingManager.Instance.OnDestroy();
 		}
 
 		//下面两个函数需要实现，实现后的效果是：ModSetting和mod之间不需要启动顺序，两者无论谁先启动都能正常添加设置
