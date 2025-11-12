@@ -239,6 +239,60 @@ namespace ShoulderSurfing
                             2
                         );
                     }),
+				new SettingObject<float>().SetName("ShoulderMouseSensitive")
+					.SetDescCN("鼠标灵敏度系数(常规状态)")
+					.SetDescEN("Mouse Sensitive Rate(Normal)")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.mouseSensitivityRate;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : ShoulderCamera.mouseSensitivityRate;
+						ShoulderCamera.mouseSensitivityRate = value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.mouseSensitivityRate = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddSlider(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							new Vector2(0, 2),
+							thisSettingObject.valueChangeFunc,
+							2
+						);
+					}),
+				new SettingObject<float>().SetName("ShoulderMouseSensitiveADS")
+					.SetDescCN("鼠标灵敏度系数(开镜状态)")
+					.SetDescEN("Mouse Sensitive Rate(ADS)")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.mouseSensitivityRateADS;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : ShoulderCamera.mouseSensitivityRateADS;
+						ShoulderCamera.mouseSensitivityRateADS = value;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.mouseSensitivityRateADS = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddSlider(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							new Vector2(0, 2),
+							thisSettingObject.valueChangeFunc,
+							2
+						);
+					}),
 				new SettingObject<float>().SetName("CameraOffsetLeftRight")
 					.SetDescCN("相机左/右偏移量")
 					.SetDescEN("Camera Offset Left/Right")

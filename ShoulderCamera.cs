@@ -9,6 +9,7 @@ using Duckov.Buildings.UI;
 using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
 using ECM2;
+using Steamworks;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
@@ -78,7 +79,12 @@ namespace ShoulderSurfing {
 			}
 		}
 		private static float __FOV= 72f;
-		public static float adsFOV = 40f;
+		public const float minADSFactor = 1.1f;
+		public static float currentADSFactor = minADSFactor;
+
+		// Mouse sensitivity parameters
+		public static float mouseSensitivityRate = 1f;
+		public static float mouseSensitivityRateADS = 1f;
 
 		private static bool _isLeftShoulder = false;
 		public static bool IsLeftShoulder
@@ -236,6 +242,25 @@ namespace ShoulderSurfing {
 			hookCamera.defaultFOV = ShoulderCamera.FOV;
 		}
 
+		public void UpdateADSFov() {
+			if (hookCamera == null) {
+				return;
+			}
+			// Update ADS factor from gun
+			ItemAgent_Gun gun = target ? target.GetGun() : null;
+			float targetADSFactor = minADSFactor;
+			if (gun) {
+				targetADSFactor = Mathf.Max(minADSFactor, gun.ADSAimDistanceFactor);
+			}
+			if (targetADSFactor == currentADSFactor) {
+				return;
+			}
+
+			currentADSFactor = targetADSFactor;
+			// Recalculate FOV by new ADS factor
+			hookCamera.adsFOV = MathF.Asin(MathF.Sin(FOV * Mathf.Deg2Rad) / targetADSFactor) * Mathf.Rad2Deg;
+		}
+
 		public void RefreshRenderDistance() {
 			if (!shoulderCameraInitalized) {
 				return;
@@ -262,7 +287,6 @@ namespace ShoulderSurfing {
 			originAdsFOV = hookCamera.adsFOV;
 			// Initialize game camera FOV
 			hookCamera.defaultFOV = ShoulderCamera.FOV;
-			hookCamera.adsFOV = ShoulderCamera.adsFOV;
 
 			mainCamera = hookCamera.renderCamera; // hookCamera.mainVCam;
 
@@ -411,21 +435,28 @@ namespace ShoulderSurfing {
 			Vector3 camDir = camOffset.normalized;
 			float camDistance = camOffset.magnitude;
 
-			// Hide character to avoid view occlusion by character
-			/*bool canShowTarget = camDistance > 0.75f;
-			if (simpleHideTarget && simpleHideTarget.gameObject.activeSelf != canShowTarget) {
-				simpleHideTarget.gameObject.SetActive(canShowTarget);
-			}*/
-
 			// Handle camera collision
 			Ray shoulderCameraRay = new Ray(anchorPos, camDir);
 			RaycastHit hitinfo;
 			if (Physics.SphereCast(shoulderCameraRay, 0.15f, out hitinfo, camDistance, cameraCollisionLayerMask)) {
 				mainCamera.transform.position = anchorPos + hitinfo.distance * camDir;
+				camDistance = hitinfo.distance;
 			} else {
 				// No colliding
 				mainCamera.transform.position = anchorPos + camOffset;
 			}
+
+			//////////////////////// WORKING ////////////////////////
+			// Hide character to avoid view occlusion by character
+			/*
+			bool shouldHideTarget = camDistance <= 0.8f;
+			if (isHiddingCharacter != shouldHideTarget) {
+				foreach (var renderer in targetRenderers) {
+					renderer.enabled = !shouldHideTarget;
+				}
+				isHiddingCharacter = shouldHideTarget;
+			}
+			*/
 		}
 
 		void Start() {
@@ -457,17 +488,10 @@ namespace ShoulderSurfing {
 			}
 
 			RehookCamera();
-
+			
 			/*
+			// Test code here
 			if (Keyboard.current.vKey.wasPressedThisFrame) {
-				Ray r = mainCamera.ScreenPointToRay(new Vector2(Screen.width * 0.5f, Screen.height * 0.5f));
-				r.origin = target.transform.position + mainCamera.transform.forward;
-				RaycastHit hitinfo;
-				if (Physics.Raycast(r, out hitinfo, 100f)) {
-					Debug.Log("test hit " + hitinfo.collider.name + " " + hitinfo.collider.gameObject.layer + " " + LayerMask.LayerToName(hitinfo.collider.gameObject.layer));
-				} else {
-					Debug.Log("no hit");
-				}
 			}
 			*/
 
@@ -494,9 +518,18 @@ namespace ShoulderSurfing {
 
 			if (target == null) {
 				target = CharacterMainControl.Main;
+				/*
 				if (target) {
-					simpleHideTarget = target.transform.Find("ModelRoot/0_CharacterModel_Custom_Template(Clone)");
+					// Search all renderers of the target for occlusion hidding
+					Transform characterTrans = target.transform.Find("ModelRoot/0_CharacterModel_Custom_Template(Clone)");
+					if (characterTrans) {
+						targetRenderers.Clear();
+						foreach(var renderer in characterTrans.GetComponentsInChildren<Renderer>()) {
+							targetRenderers.Add(renderer);
+						}
+					}
 				}
+				*/
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
@@ -514,6 +547,13 @@ namespace ShoulderSurfing {
 				return; // Come in next frame :)
 			}
 
+			// Refresh ADS fov when aimming
+			float __mouseSensitivityRate = mouseSensitivityRate; /* / 1.0f; */
+			if (target.IsInAdsInput) {
+				UpdateADSFov();
+				__mouseSensitivityRate = mouseSensitivityRateADS / currentADSFactor;
+			}
+
 			// Update camera rotation by player input
 			if (isInputActiveForCamera) { // No camera rotation while the game is paused or the inventory is open
 				// Freeze input and camera rotation for one frame after input is active
@@ -521,7 +561,7 @@ namespace ShoulderSurfing {
 					// Update mouse delta to the rotation
 					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
 					// Shoulder surfing is more sensitive than the origin, so we use 0.01
-					currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
+					currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f * __mouseSensitivityRate;
 
 					// Camera shaked by recoil
 					float cameraShakePitchThisFrame = InputManagerExtender.cameraShakePixels * global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f;
@@ -547,7 +587,7 @@ namespace ShoulderSurfing {
 
 		int aimPosHash = Shader.PropertyToID("OC_AimPos");
 		int aimViewDirHash = Shader.PropertyToID("OC_AimViewDir");
-		CharacterMainControl target;
+		CharacterMainControl? target;
 
 		GameCamera hookCamera;
 		Camera mainCamera;
@@ -561,7 +601,9 @@ namespace ShoulderSurfing {
 		Vector3 targetShoulderCameraOffset;
 		Vector3 anchorOffset = Vector3.up * 0.75f;
 
-		Transform? simpleHideTarget;
+		// Variables about character hidding
+		bool isHiddingCharacter = false;
+		List<Renderer> targetRenderers = new List<Renderer>();
 
 		int cameraCollisionLayerMask;
 		bool isInputActiveLastFrame = false;
