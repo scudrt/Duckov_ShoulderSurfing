@@ -204,26 +204,26 @@ namespace ShoulderSurfing
             Instance = this;
             CreateMiniMapContainer();
 			SceneManager.sceneLoaded += OnSceneLoaded;
-            View.OnActiveViewChanged += OnActiveViewChanged;
+            // View.OnActiveViewChanged += OnActiveViewChanged;
         }
 
         public void Destroy()
         {
             Debug.Log($"destroy minimap container");
             GameObject.Destroy(miniMapContainer);
-            View.OnActiveViewChanged -= OnActiveViewChanged;
+            // View.OnActiveViewChanged -= OnActiveViewChanged;
 			SceneManager.sceneLoaded -= OnSceneLoaded;
             Instance = null;
         }
 
-        public void OnActiveViewChanged()
-        {
-            var view = MiniMapView.Instance;
-            if(view != null && View.ActiveView != view)
-            {
-                CallDisplayMethod("HandlePointsOfInterests");
-            }
-        }
+        // public void OnActiveViewChanged()
+        // {
+        //     var view = MiniMapView.Instance;
+        //     if(view != null && View.ActiveView != view)
+        //     {
+        //         CallDisplayMethod("HandlePointsOfInterests");
+        //     }
+        // }
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
@@ -481,7 +481,7 @@ namespace ShoulderSurfing
                 var poi = child.GetComponent<PointOfInterestEntry>();
                 if(poi != null && (poi.Target == null || poi.Target.gameObject.name.StartsWith("CharacterMarker:")))
                 {
-                    GameObject.Destroy(child.gameObject);
+                    ReleasePointOfInterestEntry(duplicatedMinimapDisplay, poi);
                 }
                 else if(child.gameObject.name == "PlayerArrow")
                 {
@@ -492,6 +492,57 @@ namespace ShoulderSurfing
             UpdateDisplayZoom();
             // 禁用可能干扰的交互组件
             // DisableInterferenceComponents();
+        }
+
+        public static bool ReleasePointOfInterestEntry(MiniMapDisplay miniMapDisplay, object pointOfInterestEntry)
+        {
+            if (miniMapDisplay == null || pointOfInterestEntry == null)
+            {
+                Debug.LogError("[MiniMapDisplayHelper] MiniMapDisplay 或 PointOfInterestEntry 为 null");
+                return false;
+            }
+
+            try
+            {
+                // 获取 PointOfInterestEntryPool 属性
+                var poolProperty = typeof(MiniMapDisplay).GetProperty("PointOfInterestEntryPool", 
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
+                if (poolProperty == null)
+                {
+                    Debug.LogError("[MiniMapDisplayHelper] 无法找到 PointOfInterestEntryPool 属性");
+                    return false;
+                }
+
+                // 获取池对象
+                var pool = poolProperty.GetValue(miniMapDisplay);
+                if (pool == null)
+                {
+                    Debug.LogError("[MiniMapDisplayHelper] PointOfInterestEntryPool 为 null");
+                    return false;
+                }
+
+                // 获取 Release 方法
+                var releaseMethod = pool.GetType().GetMethod("Release", 
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
+                if (releaseMethod == null)
+                {
+                    Debug.LogError("[MiniMapDisplayHelper] 无法找到 Release 方法");
+                    return false;
+                }
+
+                // 调用 Release 方法
+                releaseMethod.Invoke(pool, new[] { pointOfInterestEntry });
+                
+                Debug.Log($"[MiniMapDisplayHelper] 成功释放 PointOfInterestEntry");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[MiniMapDisplayHelper] 释放 PointOfInterestEntry 时出错: {ex.Message}");
+                return false;
+            }
         }
 
         private void CallDisplayMethod(string methodName)
