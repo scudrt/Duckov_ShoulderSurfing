@@ -80,7 +80,7 @@ namespace ShoulderSurfing {
 		}
 		private static float __FOV= 72f;
 		public const float minADSFactor = 1.1f;
-		public static float currentADSFactor = minADSFactor;
+		public static float currentADSFactor = 1f;
 
 		// Mouse sensitivity parameters
 		public static float mouseSensitivityRate = 1f;
@@ -289,6 +289,7 @@ namespace ShoulderSurfing {
 			hookCamera.defaultFOV = ShoulderCamera.FOV;
 
 			mainCamera = hookCamera.renderCamera; // hookCamera.mainVCam;
+			currentADSFactor = 1;
 
 			if (hookCamera.mianCameraArm != null)
 			{
@@ -327,6 +328,7 @@ namespace ShoulderSurfing {
 				return;
 			}
 
+			currentADSFactor = 1;
 			hookCamera.defaultFOV = originDefaultFOV;
 			hookCamera.adsFOV = originAdsFOV;
 
