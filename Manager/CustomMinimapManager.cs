@@ -227,6 +227,10 @@ namespace ShoulderSurfing
 
         public void ClearMap()
         {
+            if(duplicatedMinimapDisplay != null)
+            {
+                CallDisplayMethod("UnregisterEvents");
+            }
             GameObject.Destroy(duplicatedMinimapObject);
             duplicatedMinimapObject = null;
         }
@@ -270,7 +274,8 @@ namespace ShoulderSurfing
             }
 
             // 每帧更新小地图位置
-            CallDisplayMethod("SetupRotation");
+            // CallDisplayMethod("SetupRotation");
+            // CallDisplayMethod("HandlePointsOfInterests");
             UpdateMiniMapRotation();
             UpdateMiniMapPosition();
         }
@@ -423,6 +428,7 @@ namespace ShoulderSurfing
 
             // 获取复制后的MinimapDisplay组件
             duplicatedMinimapDisplay = (MiniMapDisplay)duplicatedMinimapObject.GetComponent(originalDisplay.GetType());
+            CallDisplayMethod("RegisterEvents");
             
             if (duplicatedMinimapDisplay == null)
             {

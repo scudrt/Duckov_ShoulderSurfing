@@ -171,7 +171,8 @@ public static class MiniMapDisplaySetupExtender
 
 [HarmonyPatch(typeof(MiniMapView))]
 [HarmonyPatch("OnSetZoom")]
-public static class MiniMapViewOnSetZoomExtender {
+public static class MiniMapViewOnSetZoomExtender
+{
 	public static void Postfix(MiniMapView __instance, float scale)
 	{
 		if (MiniMapCommon.playerArrow != null)
@@ -182,4 +183,14 @@ public static class MiniMapViewOnSetZoomExtender {
 		}
 	}
 
+}
+
+[HarmonyPatch(typeof(MiniMapDisplay))]
+[HarmonyPatch("ReleasePointOfInterest")]
+public static class MiniMapDisplayReleasePointOfInterestExtender {
+	public static void Postfix(MiniMapDisplay __instance, MonoBehaviour poi)
+    {
+		// Debug.Log($"ReleasePointOfInterestExtender: {__instance} {poi}");
+		poi.gameObject.SetActive(false);
+    }
 }
