@@ -131,6 +131,7 @@ public static class MiniMapDisplaySetupExtender
 		}
 		// 创建新的GameObject并添加Image组件
 		GameObject arrowObject = new GameObject("PlayerImage");
+		arrowObject.name = "PlayerArrow";
 		MiniMapCommon.playerArrow = arrowObject;
 		Image arrowImage = arrowObject.AddComponent<Image>();
 		arrowCache = arrowImage;
@@ -186,11 +187,40 @@ public static class MiniMapViewOnSetZoomExtender
 }
 
 [HarmonyPatch(typeof(MiniMapDisplay))]
-[HarmonyPatch("ReleasePointOfInterest")]
-public static class MiniMapDisplayReleasePointOfInterestExtender {
-	public static void Postfix(MiniMapDisplay __instance, MonoBehaviour poi)
-    {
-		// Debug.Log($"ReleasePointOfInterestExtender: {__instance} {poi}");
-		poi.gameObject.SetActive(false);
-    }
+[HarmonyPatch("HandlePointOfInterest")]
+public static class MiniMapDisplayHandlePOIExtender
+{
+	// static FieldInfo targetField;
+	public static bool Prefix(MiniMapDisplay __instance, MonoBehaviour poi)
+	{
+		if(__instance == CustomMinimapManager.Instance.DuplicatedMinimapDisplay)
+		{
+			var poiName = poi.gameObject.name;
+			if(poiName.StartsWith("CharacterMarker:"))
+				return false;
+			return true;
+		}
+		return true;
+	}
 }
+
+// [HarmonyPatch(typeof(MiniMapDisplay))]
+// [HarmonyPatch("ReleasePointOfInterest")]
+// public static class MiniMapDisplayReleasePOIExtender
+// {
+// 	public static void Postfix(MiniMapDisplay __instance, MonoBehaviour poi)
+// 	{
+// 		poi.gameObject.SetActive(false);
+// 	}
+// }
+
+// [HarmonyPatch(typeof(PointOfInterestEntry))]
+// [HarmonyPatch("UpdatePosition")]
+// public static class PointOfInterestEntryExtender {
+// 	public static bool Prefix(PointOfInterestEntry __instance)
+// 	{
+// 		if (__instance.Target == null)
+// 			return false;
+// 		return true;
+//     }
+// }

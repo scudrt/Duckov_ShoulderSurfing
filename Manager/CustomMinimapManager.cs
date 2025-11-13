@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using Duckov.MiniMaps.UI;
+using Duckov.UI;
 using Duckov.UI.MainMenu;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -85,7 +86,10 @@ namespace ShoulderSurfing
                 return;
             if (Instance.customCanvas != null && isEnabled)
             {
+                if(Instance.customCanvas.activeInHierarchy)
+                    return;
                 Instance.customCanvas.SetActive(true);
+                // Instance.CallDisplayMethod("HandlePointsOfInterests");
             }
         }
 
@@ -200,14 +204,25 @@ namespace ShoulderSurfing
             Instance = this;
             CreateMiniMapContainer();
 			SceneManager.sceneLoaded += OnSceneLoaded;
+            View.OnActiveViewChanged += OnActiveViewChanged;
         }
 
         public void Destroy()
         {
             Debug.Log($"destroy minimap container");
             GameObject.Destroy(miniMapContainer);
+            View.OnActiveViewChanged -= OnActiveViewChanged;
 			SceneManager.sceneLoaded -= OnSceneLoaded;
             Instance = null;
+        }
+
+        public void OnActiveViewChanged()
+        {
+            var view = MiniMapView.Instance;
+            if(view != null && View.ActiveView != view)
+            {
+                CallDisplayMethod("HandlePointsOfInterests");
+            }
         }
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -232,6 +247,8 @@ namespace ShoulderSurfing
                 CallDisplayMethod("UnregisterEvents");
             }
             GameObject.Destroy(duplicatedMinimapObject);
+            GameObject.Destroy(duplicatedMinimapDisplay);
+            duplicatedMinimapDisplay = null;
             duplicatedMinimapObject = null;
         }
 
@@ -434,6 +451,7 @@ namespace ShoulderSurfing
             {
                 Debug.LogError("Failed to get duplicated MinimapDisplay component!");
                 GameObject.Destroy(duplicatedMinimapObject);
+                GameObject.Destroy(duplicatedMinimapDisplay);
                 return false;
             }
 
@@ -458,6 +476,19 @@ namespace ShoulderSurfing
 
             duplicatedMinimapObject.transform.localPosition = Vector3.zero;
             duplicatedMinimapDisplay.transform.localRotation = Quaternion.identity;
+            foreach(Transform child in duplicatedMinimapDisplay.transform)
+            {
+                var poi = child.GetComponent<PointOfInterestEntry>();
+                if(poi != null && (poi.Target == null || poi.Target.gameObject.name.StartsWith("CharacterMarker:")))
+                {
+                    GameObject.Destroy(child.gameObject);
+                }
+                else if(child.gameObject.name == "PlayerArrow")
+                {
+                    GameObject.Destroy(child.gameObject);
+                }
+            }
+
             UpdateDisplayZoom();
             // 禁用可能干扰的交互组件
             // DisableInterferenceComponents();
