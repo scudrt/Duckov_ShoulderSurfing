@@ -257,6 +257,8 @@ namespace ShoulderSurfing
 			bool inputActive = Application.isFocused && InputManager.InputActived && CharacterInputControl.Instance;
 			if (!inputActive) {
 				// Hide minimap when UI is on
+                if(PauseMenu.Instance.Shown)
+                    return;
 				Hide();
 			} else {
 				// Recover minimap state when shoulder camera is under control
