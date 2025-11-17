@@ -71,6 +71,11 @@ namespace ShoulderSurfing
                     {
                         ShoulderCamera.switchShoulderCameraKey = value;
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.switchShoulderCameraKey = KeyCode.F7;
+                        ModSettingAPI.SetValue<KeyCode>(thisSettingObject.GetName(), ShoulderCamera.switchShoulderCameraKey, null);
+                    })
                     .SetLoadFunc((thisSettingObject) =>
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : ShoulderCamera.switchShoulderCameraKey;
@@ -101,6 +106,11 @@ namespace ShoulderSurfing
                     {
                         ShoulderCamera.shoulderSideKeySingle = value;
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.shoulderSideKeySingle = KeyCode.LeftAlt;
+                        ModSettingAPI.SetValue<KeyCode>(thisSettingObject.GetName(), ShoulderCamera.shoulderSideKeySingle, null);
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddKeybinding(
@@ -125,6 +135,11 @@ namespace ShoulderSurfing
                     .SetValueChangeFunc((value) =>
                     {
                         ShoulderCamera.shoulderLeftSideKey = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.shoulderLeftSideKey = KeyCode.Q;
+                        ModSettingAPI.SetValue<KeyCode>(thisSettingObject.GetName(), ShoulderCamera.shoulderLeftSideKey, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -151,6 +166,11 @@ namespace ShoulderSurfing
                     {
                         ShoulderCamera.shoulderRightSideKey = value;
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.shoulderRightSideKey = KeyCode.E;
+                        ModSettingAPI.SetValue<KeyCode>(thisSettingObject.GetName(), ShoulderCamera.shoulderRightSideKey, null);
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddKeybinding(
@@ -176,6 +196,11 @@ namespace ShoulderSurfing
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : false;
                         ShoulderCamera.invertYAxis = value;
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.invertYAxis = false;
+                        ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), ShoulderCamera.invertYAxis, null);
+                    })
 					.SetRegisterFunc((thisSettingObject) =>
 					{
 						ModSettingAPI.AddToggle(
@@ -200,6 +225,11 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.FOV;
                         ShoulderCamera.FOV = (int)value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.FOV = 72;
+                        ModSettingAPI.SetValue<int>(thisSettingObject.GetName(), (int)ShoulderCamera.FOV, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -227,6 +257,11 @@ namespace ShoulderSurfing
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out int d1) ? d1 : ShoulderCamera.renderDistance;
                         ShoulderCamera.renderDistance = value;
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.renderDistance = 80;
+                        ModSettingAPI.SetValue<int>(thisSettingObject.GetName(), ShoulderCamera.renderDistance, null);
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddSlider(
@@ -252,6 +287,11 @@ namespace ShoulderSurfing
                     .SetValueChangeFunc((value) =>
                     {
                         InputManagerExtenderCommon.ShoulderRecoilMultiplier = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        InputManagerExtenderCommon.ShoulderRecoilMultiplier = 0.36f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), InputManagerExtenderCommon.ShoulderRecoilMultiplier, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -280,6 +320,11 @@ namespace ShoulderSurfing
 					{
 						ShoulderCamera.mouseSensitivityRate = value;
 					})
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.mouseSensitivityRate = 1f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), ShoulderCamera.mouseSensitivityRate, null);
+                    })
 					.SetRegisterFunc((thisSettingObject) =>
 					{
 						ModSettingAPI.AddSlider(
@@ -307,6 +352,11 @@ namespace ShoulderSurfing
 					{
 						ShoulderCamera.mouseSensitivityRateADS = value;
 					})
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.mouseSensitivityRateADS = 1f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), ShoulderCamera.mouseSensitivityRateADS, null);
+                    })
 					.SetRegisterFunc((thisSettingObject) =>
 					{
 						ModSettingAPI.AddSlider(
@@ -334,6 +384,11 @@ namespace ShoulderSurfing
 					{
 						ShoulderCamera.shoulderCameraOffsetX = value;
 					})
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.shoulderCameraOffsetX = 1f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), ShoulderCamera.shoulderCameraOffsetX, null);
+                    })
 					.SetRegisterFunc((thisSettingObject) =>
 					{
 						ModSettingAPI.AddSlider(
@@ -361,6 +416,11 @@ namespace ShoulderSurfing
 					{
 						ShoulderCamera.shoulderCameraOffsetY = value;
 					})
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.shoulderCameraOffsetY = 1f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), ShoulderCamera.shoulderCameraOffsetY, null);
+                    })
 					.SetRegisterFunc((thisSettingObject) =>
 					{
 						ModSettingAPI.AddSlider(
@@ -388,6 +448,11 @@ namespace ShoulderSurfing
 					{
 						ShoulderCamera.shoulderCameraOffsetZ = -value;
 					})
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.shoulderCameraOffsetZ = -2.8f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), 2.8f, null);
+                    })
 					.SetRegisterFunc((thisSettingObject) =>
 					{
 						ModSettingAPI.AddSlider(
@@ -415,6 +480,11 @@ namespace ShoulderSurfing
                     .SetValueChangeFunc((value) =>
                     {
                         MiniMapCommon.mapIndicatorAlpha = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        MiniMapCommon.mapIndicatorAlpha = 0.5f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), MiniMapCommon.mapIndicatorAlpha, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -446,6 +516,12 @@ namespace ShoulderSurfing
                         StaminaHUDExtender.staminaHUDOffset.x = value;
                         StaminaHUDExtender.UpdateCustomHUDOffset(true);
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        StaminaHUDExtender.staminaHUDOffset.x = 0.28f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), StaminaHUDExtender.staminaHUDOffset.x, null);
+                        StaminaHUDExtender.UpdateCustomHUDOffset();
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddSlider(
@@ -475,6 +551,12 @@ namespace ShoulderSurfing
                         StaminaHUDExtender.staminaHUDOffset.y = value;
                         StaminaHUDExtender.UpdateCustomHUDOffset(true);
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        StaminaHUDExtender.staminaHUDOffset.y = 0.26f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), StaminaHUDExtender.staminaHUDOffset.y, null);
+                        StaminaHUDExtender.UpdateCustomHUDOffset();
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddSlider(
@@ -503,6 +585,12 @@ namespace ShoulderSurfing
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : StaminaHUDExtender.staminaHUDScale;
                         StaminaHUDExtender.UpdateCustomHUDScale(value, true);
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        StaminaHUDExtender.staminaHUDScale = 1f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), StaminaHUDExtender.staminaHUDScale, null);
+                        StaminaHUDExtender.UpdateCustomHUDScale(StaminaHUDExtender.staminaHUDScale);
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddSlider(
@@ -517,7 +605,7 @@ namespace ShoulderSurfing
 
                 new SettingObject<bool>().SetName("MinimapRotationToggle")
                     .SetDescCN("地图旋转开关")
-                    .SetDescEN("MinimapRotationToggle")
+                    .SetDescEN("MapRotationToggle")
                     .SetGetValueFunc(() =>
                     {
                         return MiniMapCommon.isMapRotateWithCamera;
@@ -530,6 +618,41 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : MiniMapCommon.isMapRotateWithCamera;
                         MiniMapCommon.isMapRotateWithCamera = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        MiniMapCommon.isMapRotateWithCamera = false;
+                        ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), MiniMapCommon.isMapRotateWithCamera, null);
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddToggle(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            thisSettingObject.valueChangeFunc
+                        );
+                    }),
+                new SettingObject<bool>().SetName("CustomMinimapRotationToggle")
+                    .SetDescCN("小地图旋转开关")
+                    .SetDescEN("MinimapRotationToggle")
+                    .SetGetValueFunc(() =>
+                    {
+                        return MiniMapCommon.isMinimapRotateWithCamera;
+                    })
+                    .SetValueChangeFunc((value) =>
+                    {
+                        MiniMapCommon.isMinimapRotateWithCamera = value;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : MiniMapCommon.isMinimapRotateWithCamera;
+                        MiniMapCommon.isMinimapRotateWithCamera = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        MiniMapCommon.isMinimapRotateWithCamera = false;
+                        ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), MiniMapCommon.isMinimapRotateWithCamera, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -557,6 +680,12 @@ namespace ShoulderSurfing
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : CustomMinimapManager.isEnabled;
                         CustomMinimapManager.Enable(value);
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.isEnabled = false;
+                        ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), CustomMinimapManager.isEnabled, null);
+                        CustomMinimapManager.Enable(CustomMinimapManager.isEnabled);
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddToggle(
@@ -581,6 +710,11 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : CustomMinimapManager.MinimapToggleKey;
                         CustomMinimapManager.MinimapToggleKey = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.MinimapToggleKey = KeyCode.Alpha9;
+                        ModSettingAPI.SetValue<KeyCode>(thisSettingObject.GetName(), CustomMinimapManager.MinimapToggleKey, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -607,6 +741,12 @@ namespace ShoulderSurfing
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : CustomMinimapManager.minimapContainerSizeScale;
                         CustomMinimapManager.minimapContainerSizeScale = value;
                         CustomMinimapManager.SetMinimapContainerScale(value);
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.minimapContainerSizeScale = 1f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), CustomMinimapManager.minimapContainerSizeScale, null);
+                        CustomMinimapManager.SetMinimapContainerScale(CustomMinimapManager.minimapContainerSizeScale);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -635,6 +775,11 @@ namespace ShoulderSurfing
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : CustomMinimapManager.displayZoomUpKey;
                         CustomMinimapManager.displayZoomUpKey = value;
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.displayZoomUpKey = KeyCode.Equals;
+                        ModSettingAPI.SetValue<KeyCode>(thisSettingObject.GetName(), CustomMinimapManager.displayZoomUpKey, null);
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddKeybinding(
@@ -659,6 +804,11 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out KeyCode d1) ? d1 : CustomMinimapManager.displayZoomDownKey;
                         CustomMinimapManager.displayZoomDownKey = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.displayZoomDownKey = KeyCode.Minus;
+                        ModSettingAPI.SetValue<KeyCode>(thisSettingObject.GetName(), CustomMinimapManager.displayZoomDownKey, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
@@ -686,6 +836,12 @@ namespace ShoulderSurfing
                     {
                         var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : CustomMinimapManager.miniMapPositionOffset.x;
                         CustomMinimapManager.miniMapPositionOffset.x = value;
+                        CustomMinimapManager.SetMinimapPosition();
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.miniMapPositionOffset.x = 0.85f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), CustomMinimapManager.miniMapPositionOffset.x, null);
                         CustomMinimapManager.SetMinimapPosition();
                     })
                     .SetRegisterFunc((thisSettingObject) =>
@@ -717,6 +873,12 @@ namespace ShoulderSurfing
                         CustomMinimapManager.miniMapPositionOffset.y = value;
                         CustomMinimapManager.SetMinimapPosition();
                     })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.miniMapPositionOffset.y = 0.1f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), CustomMinimapManager.miniMapPositionOffset.y, null);
+                        CustomMinimapManager.SetMinimapPosition();
+                    })
                     .SetRegisterFunc((thisSettingObject) =>
                     {
                         ModSettingAPI.AddSlider(
@@ -744,6 +906,11 @@ namespace ShoulderSurfing
 						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : false;
 						CharacterMainControlExtender.enableWallHacking = value;
 					})
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CharacterMainControlExtender.enableWallHacking = false;
+                        ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), CharacterMainControlExtender.enableWallHacking, null);
+                    })
 					.SetRegisterFunc((thisSettingObject) =>
 					{
 						ModSettingAPI.AddToggle(
@@ -751,6 +918,24 @@ namespace ShoulderSurfing
 							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
 							thisSettingObject.getValueFunc(),
 							thisSettingObject.valueChangeFunc
+						);
+					}),
+				new SettingObject<int>().SetName("ResetSetting")
+					.SetDescCN("重置所有设置")
+					.SetDescEN("Reset All Settings")
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddButton(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							new Action(() =>
+                            {
+                                foreach (var settingObject in settingObjects)
+                                {
+                                    settingObject.Reset();
+                                }
+                            }) 
 						);
 					}),
 			};

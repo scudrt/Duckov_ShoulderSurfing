@@ -8,6 +8,7 @@ namespace ShoulderSurfing
         public abstract object GetValue();
         public abstract void Load();
         public abstract void Register();
+        public abstract void Reset();
     }
 
     // 泛型设置对象
@@ -19,6 +20,7 @@ namespace ShoulderSurfing
         public Action<SettingObject<T>> loadFunc;
         public Action<SettingObject<T>> registerFunc;
         public Action<T> valueChangeFunc;
+        public Action<SettingObject<T>> resetFunc;
         public Func<T> getValueFunc;
 
         public SettingObject<T> SetName(string name)
@@ -62,6 +64,12 @@ namespace ShoulderSurfing
             return this;
         }
 
+        public SettingObject<T> SetResetFunc(Action<SettingObject<T>> resetFunc)
+        {
+            this.resetFunc = resetFunc;
+            return this;
+        }
+
         // 实现抽象方法
         public override string GetName() => name;
 
@@ -78,6 +86,11 @@ namespace ShoulderSurfing
         public override void Register()
         {
             registerFunc?.Invoke(this);
+        }
+
+        public override void Reset()
+        {
+            resetFunc?.Invoke(this);
         }
 
         // 强类型获取值

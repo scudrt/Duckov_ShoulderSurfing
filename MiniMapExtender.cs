@@ -16,8 +16,15 @@ using UnityEngine.UI;
 public static class MiniMapCommon
 {
 	public static bool isMapRotateWithCamera = false;
+	public static bool isMinimapRotateWithCamera = false;
 	public static GameObject playerArrow;
 	public static float mapIndicatorAlpha = 0.5f;
+
+	// public static bool IsOfficialSimplePOI(GameObject poiObject)
+    // {
+	// 	var name = poiObject.name;
+    //     return name.StartsWith("MapElement") || name.StartsWith("POI_") || poiObject == LevelManager.Instance.MainCharacter.gameObject;
+    // }
 
 	public static Vector3 GetPlayerMinimapLocalPosition()
 	{
@@ -195,9 +202,13 @@ public static class MiniMapDisplayHandlePOIExtender
 	{
 		if(__instance == CustomMinimapManager.Instance.DuplicatedMinimapDisplay)
 		{
-			var poiName = poi.gameObject.name;
-			if(poiName.StartsWith("CharacterMarker:"))
+			// var poiName = poi.gameObject.name;
+			if(poi is SimplePointOfInterest && View.ActiveView == MiniMapView.Instance)
+            {
+				// Debug.Log($"不初始化poi:{poi.gameObject.name} {poi} {poi.gameObject}");
 				return false;
+            }
+			// Debug.Log($"初始化poi:{poi.gameObject.name} {poi} {poi.gameObject}");
 			return true;
 		}
 		return true;

@@ -473,7 +473,6 @@ namespace ShoulderSurfing
         {
             duplicatedMinimapObject.transform.SetParent(miniMapScaleContainer.transform);
             RectTransform rectTransform = duplicatedMinimapObject.GetComponent<RectTransform>();
-            CallDisplayMethod("AutoSetup");
             if (rectTransform != null)
             {
                 rectTransform.anchorMin = Vector2.zero;
@@ -483,12 +482,13 @@ namespace ShoulderSurfing
                 rectTransform.localScale = Vector3.one;
             }
 
+            CallDisplayMethod("AutoSetup");
             duplicatedMinimapObject.transform.localPosition = Vector3.zero;
             duplicatedMinimapDisplay.transform.localRotation = Quaternion.identity;
             foreach(Transform child in duplicatedMinimapDisplay.transform)
             {
                 var poi = child.GetComponent<PointOfInterestEntry>();
-                if(poi != null && (poi.Target == null || poi.Target.gameObject.name.StartsWith("CharacterMarker:")))
+                if(poi != null && poi.Target == null)
                 {
                     ReleasePointOfInterestEntry(duplicatedMinimapDisplay, poi);
                 }
@@ -609,7 +609,7 @@ namespace ShoulderSurfing
 
         private void UpdateMiniMapRotation()
         {
-            if (MiniMapCommon.isMapRotateWithCamera) {
+            if (MiniMapCommon.isMinimapRotateWithCamera) {
                 Vector3 to = ShoulderCamera.CameraForward;
                 float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
                 duplicatedMinimapDisplay.transform.rotation = Quaternion.Euler(0, 0, currentMapZRotation);
