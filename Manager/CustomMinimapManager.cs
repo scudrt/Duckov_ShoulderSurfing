@@ -4,6 +4,7 @@ using Duckov.MiniMaps.UI;
 using Duckov.UI;
 using Duckov.UI.MainMenu;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -13,6 +14,7 @@ namespace ShoulderSurfing
     {
         public static bool isEnabled = false; // 设置是否启用
         public static bool isToggled = false; // 快捷键开关状态
+        public static bool halfRateUpdate = true; // 半速更新 减少开销
         public static Vector2 miniMapSize = new Vector2(200, 200);
         public static float minimapContainerSizeScale = 1f;
         public static KeyCode displayZoomUpKey = KeyCode.Equals;
@@ -233,6 +235,7 @@ namespace ShoulderSurfing
                 return;
             }
             Debug.Log($"初始化场景 {scene} {mode}");
+            Debug.Log("半速更新模式启用");
             if (initMapCor != null)
                 ModBehaviour.Instance.StopCoroutine(initMapCor);
             ClearMap();
@@ -290,6 +293,10 @@ namespace ShoulderSurfing
             else if (Input.GetKeyDown(displayZoomUpKey))
             {
                 DisplayZoom(1);
+            }
+
+            if (halfRateUpdate && (Time.frameCount & 1) == 0) {
+                return;
             }
 
             // 每帧更新小地图位置

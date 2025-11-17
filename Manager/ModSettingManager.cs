@@ -160,7 +160,32 @@ namespace ShoulderSurfing
                             thisSettingObject.valueChangeFunc
                         );
                     }),
-                new SettingObject<int>().SetName("Fov")
+				new SettingObject<bool>().SetName("InvertYAxis")
+					.SetDescCN("Y轴反转")
+					.SetDescEN("Invert Y Axis")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.invertYAxis;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.invertYAxis = value;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : false;
+                        ShoulderCamera.invertYAxis = value;
+                    })
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddToggle(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+				new SettingObject<int>().SetName("Fov")
                     .SetDescCN("视野范围(FOV)")
                     .SetDescEN("Field Of View")
                     .SetGetValueFunc(() =>
@@ -703,7 +728,32 @@ namespace ShoulderSurfing
                             3
                         );
                     }),
-            };
+				new SettingObject<bool>().SetName("WallHacking")
+					.SetDescCN("穿墙透视(切换地图后生效)")
+					.SetDescEN("Wall Hacking(take effects after switch maps)")
+					.SetGetValueFunc(() =>
+					{
+						return CharacterMainControlExtender.enableWallHacking;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						CharacterMainControlExtender.enableWallHacking = value;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : false;
+						CharacterMainControlExtender.enableWallHacking = value;
+					})
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddToggle(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+			};
 
             try
             {

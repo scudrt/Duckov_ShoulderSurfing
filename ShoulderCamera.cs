@@ -10,12 +10,16 @@ using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
 using ECM2;
 using Steamworks;
+using Unity.VisualScripting;
+using Unity.Collections;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
 		// Global switch indicating whether we're in shoulder surfing view
 		public static bool shoulderCameraToggled = true;
 		public static bool shoulderCameraInitalized = false;
+
+		public static bool invertYAxis = false;
 
 		public static bool isMiniGameEnabled = false;
 		public static float shoulderCameraOffsetX {
@@ -562,6 +566,9 @@ namespace ShoulderSurfing {
 				if (isInputActiveLastFrame) {
 					// Update mouse delta to the rotation
 					Vector2 currentMouseDelta = (Vector2)mouseDeltaField.GetValue(CharacterInputControl.Instance);
+					if (invertYAxis) { // Apply invert Y axis
+						currentMouseDelta.y = -currentMouseDelta.y;
+					}
 					// Shoulder surfing is more sensitive than the origin, so we use 0.01
 					currentMouseDelta *= global::Duckov.Options.OptionsManager.MouseSensitivity * 0.01f * __mouseSensitivityRate;
 
@@ -592,7 +599,7 @@ namespace ShoulderSurfing {
 		CharacterMainControl? target;
 
 		GameCamera hookCamera;
-		Camera mainCamera;
+		public Camera mainCamera { get; private set; }
 		// CinemachineVirtualCamera mainCamera;
 
 		FieldInfo mouseDeltaField;

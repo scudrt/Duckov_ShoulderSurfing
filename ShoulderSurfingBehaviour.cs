@@ -7,6 +7,7 @@ using Duckov.MiniGames;
 using UnityEngine;
 using Duckov.Modding;
 using UnityEngine.SceneManagement;
+using Duckov.Sounds;
 
 namespace ShoulderSurfing {
 
@@ -48,9 +49,10 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameStartExtender), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameEndExtender), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayHandlePOIExtender), "HandlePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
+			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterMainControlExtender), "SetCharacterModel");
+			PatchSingleExtender(typeof(SoundVisualization), typeof(SoundVisualizationExtender), "RefreshEntryPosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayReleasePOIExtender), "ReleasePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(PointOfInterestEntry), typeof(PointOfInterestEntryExtender), "UpdatePosition", BindingFlags.Instance | BindingFlags.NonPublic);
-			// PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterMainControlStartActionExtender), "StartAction");
 			// PatchSingleExtender(typeof(InputManager), typeof(InputManagerActiveInputExtender), "ActiveInput", BindingFlags.Static | BindingFlags.Public);
 			// PatchSingleExtender(typeof(Projectile), typeof(ProjectileExtender), "Init");
 		}
@@ -68,9 +70,10 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "HandlePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(CharacterMainControl), "SetCharacterModel");
+			UnpatchSingleExtender(typeof(SoundVisualization), "RefreshEntryPosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(MiniMapDisplay), "ReleasePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(PointOfInterestEntry), "UpdatePosition", BindingFlags.Instance | BindingFlags.NonPublic);
-			// UnpatchSingleExtender(typeof(CharacterMainControl), "StartAction");
 			// UnpatchSingleExtender(typeof(InputManager), "ActiveInput", BindingFlags.Static | BindingFlags.Public);
 			// UnpatchSingleExtender(typeof(Projectile), "Init");
 		}
