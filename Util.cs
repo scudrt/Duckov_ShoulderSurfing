@@ -16,15 +16,17 @@ namespace ShoulderSurfing
         }
 
         public static Shader LoadShader(string shaderName) {
-            string shaderPath = Path.Combine(GetDirectory(), "shaders", shaderName);
-            if (!File.Exists(shaderPath)) {
-                Debug.Log("[ShoulderSurfingCamera] Shader not found in " + shaderPath);
+            string shaderPath = Path.Combine(GetDirectory(), "shaders/shaders");
+            AssetBundle bundle = AssetBundle.LoadFromFile(shaderPath);
+            if (!bundle) {
+                Debug.Log("[shoulder camera] can't load bundle from path " + shaderPath);
                 return null;
             }
-
-            AssetBundle bundle = AssetBundle.LoadFromFile(shaderPath);
-            ; // TODO
-            return null;
+			Shader shader = bundle.LoadAsset<Shader>(shaderName);
+            if (!shader) {
+                Debug.Log("[shoulder camera] failed to load shader, no shader named " + shaderName);
+            }
+            return shader;
         }
 
         public static Sprite LoadSprite(string textureName)

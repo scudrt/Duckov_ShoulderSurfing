@@ -22,6 +22,11 @@ namespace ShoulderSurfing {
 		public static bool invertYAxis = false;
 
 		public static bool isMiniGameEnabled = false;
+
+		public static bool enableAimOcclusionFade = false; // 启用准星透视
+
+		public static Shader characterFadeShader = Util.LoadShader("SodaCharacter");
+
 		public static float shoulderCameraOffsetX {
 			get {
 				return __shoulderCameraOffsetX;
@@ -156,17 +161,46 @@ namespace ShoulderSurfing {
 			}
 		}
 
+		public static void TrySetTransformCameraFade(Transform trans, bool enable) {
+			if (trans == null) {
+				return;
+			}
+
+			foreach (var renderer in trans.GetComponentsInChildren<Renderer>()) {
+				foreach (var mat in renderer.materials) {
+					// Replace camera fade shader for character and weapon
+					if (mat.shader.name != "SodaCraft/SodaCharacter" && mat.shader.name != "SodaCraft/SodaLit") {
+						continue;
+					}
+					if (enable) {
+						mat.shader = characterFadeShader;
+						mat.renderQueue = 5000;
+					} else {
+						if (mat.HasFloat("_CameraFadeStartDistance")) { // It's our fade material
+							mat.SetFloat("_CameraFadeStartDistance", 0.1f);
+							mat.SetFloat("_CameraFadeEndDistance", 0f);
+						}
+					}
+				}
+			}
+		}
+
 		public void RehookCamera()
 		{
-			if (hookCamera != null && mainCamera != null)
-			{
+			if (hookCamera != null && mainCamera != null) {
+				return;
+			}
+			if (LevelManager.LevelInited == false || CharacterMainControl.Main == null) {
 				return;
 			}
 
 			this.hookCamera = GameCamera.Instance;
-			if (hookCamera == null)
-			{
+			if (hookCamera == null || hookCamera.renderCamera == null) {
 				return;
+			}
+
+			if (target == null) {
+				target = CharacterMainControl.Main;
 			}
 
 			if (shoulderCameraToggled)
@@ -217,6 +251,9 @@ namespace ShoulderSurfing {
 		}
 
 		public void DisableAimOcclusionFade() {
+			if (enableAimOcclusionFade) {
+				return;
+			}
 			// Disable aim occlusion fade in shoulder camera mode
 			OcclusionFadeManager fadeManager = OcclusionFadeManager.Instance;
 			if (fadeManager && fadeManager.aimOcclusionFadeChecker) {
@@ -276,14 +313,17 @@ namespace ShoulderSurfing {
 			mainCamera.farClipPlane = renderDistance;
 		}
 
-		public void OnShoulderCameraEnable()
-		{
-			if (shoulderCameraInitalized)
-			{
+		public void TrySetCharacterFadeEnable(bool enable) {
+			// Search all renderers of the target for occlusion hidding
+			Transform characterTrans = target.transform.Find("ModelRoot/0_CharacterModel_Custom_Template(Clone)");
+			TrySetTransformCameraFade(characterTrans, enable);
+		}
+
+		public void OnShoulderCameraEnable() {
+			if (shoulderCameraInitalized) {
 				return;
 			}
-			if (hookCamera == null || hookCamera.renderCamera == null)
-			{
+			if (hookCamera == null || hookCamera.renderCamera == null) {
 				return;
 			}
 
@@ -295,21 +335,20 @@ namespace ShoulderSurfing {
 			mainCamera = hookCamera.renderCamera; // hookCamera.mainVCam;
 			currentADSFactor = 1;
 
-			if (hookCamera.mianCameraArm != null)
-			{
+			if (hookCamera.mianCameraArm != null) {
 				hookCamera.mianCameraArm.enabled = false;
 			}
-			if (hookCamera.brain != null)
-			{
+			if (hookCamera.brain != null) {
 				hookCamera.brain.enabled = false;
 			}
-			if (hookCamera.mainVCam != null)
-			{
+			if (hookCamera.mainVCam != null) {
 				hookCamera.mainVCam.enabled = false;
 			}
 
 			originFarClip = mainCamera.farClipPlane; // original: 300f
 			mainCamera.farClipPlane = ShoulderCamera.renderDistance;
+
+			TrySetCharacterFadeEnable(true);
 
 			DisableAllDOF();
 			DisableCameraModeDOF();
@@ -353,6 +392,8 @@ namespace ShoulderSurfing {
 
 			SceneManager.sceneLoaded -= OnSceneLoaded;
 			CameraMode.OnCameraModeDeactivated -= DisableCameraModeDOF;
+
+			TrySetCharacterFadeEnable(false);
 
 			isInputActiveLastFrame = false;
 
@@ -451,18 +492,6 @@ namespace ShoulderSurfing {
 				// No colliding
 				mainCamera.transform.position = anchorPos + camOffset;
 			}
-
-			//////////////////////// WORKING ////////////////////////
-			// Hide character to avoid view occlusion by character
-			/*
-			bool shouldHideTarget = camDistance <= 0.8f;
-			if (isHiddingCharacter != shouldHideTarget) {
-				foreach (var renderer in targetRenderers) {
-					renderer.enabled = !shouldHideTarget;
-				}
-				isHiddingCharacter = shouldHideTarget;
-			}
-			*/
 		}
 
 		void Start() {
@@ -520,22 +549,6 @@ namespace ShoulderSurfing {
 				if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.periodKey.wasPressedThisFrame) {
 					InputManagerExtenderCommon.ShoulderRecoilMultiplier = InputManagerExtenderCommon.ShoulderRecoilMultiplier <= 0f ? InputManagerExtenderCommon.DefaultShoulderRecoilMultiplier : 0f;
 				}
-			}
-
-			if (target == null) {
-				target = CharacterMainControl.Main;
-				/*
-				if (target) {
-					// Search all renderers of the target for occlusion hidding
-					Transform characterTrans = target.transform.Find("ModelRoot/0_CharacterModel_Custom_Template(Clone)");
-					if (characterTrans) {
-						targetRenderers.Clear();
-						foreach(var renderer in characterTrans.GetComponentsInChildren<Renderer>()) {
-							targetRenderers.Add(renderer);
-						}
-					}
-				}
-				*/
 			}
 
 			if (shoulderCameraToggled && !shoulderCameraInitalized) {
@@ -609,10 +622,6 @@ namespace ShoulderSurfing {
 		Vector3 currentShoulderCameraOffset;
 		Vector3 targetShoulderCameraOffset;
 		Vector3 anchorOffset = Vector3.up * 0.75f;
-
-		// Variables about character hidding
-		bool isHiddingCharacter = false;
-		List<Renderer> targetRenderers = new List<Renderer>();
 
 		int cameraCollisionLayerMask;
 		bool isInputActiveLastFrame = false;

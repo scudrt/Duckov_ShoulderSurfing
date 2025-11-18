@@ -51,6 +51,7 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayHandlePOIExtender), "HandlePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterMainControlExtender), "SetCharacterModel");
 			PatchSingleExtender(typeof(SoundVisualization), typeof(SoundVisualizationExtender), "RefreshEntryPosition", BindingFlags.Instance | BindingFlags.NonPublic);
+			PatchSingleExtender(typeof(CharacterEquipmentController), typeof(CharacterEquipmentExtender), "ChangeEquipmentModel", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayReleasePOIExtender), "ReleasePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(PointOfInterestEntry), typeof(PointOfInterestEntryExtender), "UpdatePosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(InputManager), typeof(InputManagerActiveInputExtender), "ActiveInput", BindingFlags.Static | BindingFlags.Public);
@@ -72,6 +73,7 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "HandlePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(CharacterMainControl), "SetCharacterModel");
 			UnpatchSingleExtender(typeof(SoundVisualization), "RefreshEntryPosition", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(CharacterEquipmentController), "ChangeEquipmentModel", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(MiniMapDisplay), "ReleasePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(PointOfInterestEntry), "UpdatePosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(InputManager), "ActiveInput", BindingFlags.Static | BindingFlags.Public);

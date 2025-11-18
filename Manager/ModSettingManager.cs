@@ -920,6 +920,38 @@ namespace ShoulderSurfing
 							thisSettingObject.valueChangeFunc
 						);
 					}),
+				new SettingObject<bool>().SetName("AimOcclusionFade")
+					.SetDescCN("启用准星透视(防树木遮挡)")
+					.SetDescEN("Enable Aim Occlusion Fade(Avoiding Tree Occlusion)")
+					.SetGetValueFunc(() =>
+					{
+						return ShoulderCamera.enableAimOcclusionFade;
+					})
+					.SetValueChangeFunc((value) =>
+					{
+						ShoulderCamera.enableAimOcclusionFade = value;
+					})
+					.SetLoadFunc((thisSettingObject) =>
+					{
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : false;
+						ShoulderCamera.enableAimOcclusionFade = value;
+					})
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        ShoulderCamera.enableAimOcclusionFade = false;
+                        ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), ShoulderCamera.enableAimOcclusionFade, null);
+                    })
+					.SetRegisterFunc((thisSettingObject) =>
+					{
+						ModSettingAPI.AddToggle(
+							thisSettingObject.name,
+							isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+							thisSettingObject.getValueFunc(),
+							thisSettingObject.valueChangeFunc
+						);
+					}),
+
+                /******** Final ********/
 				new SettingObject<int>().SetName("ResetSetting")
 					.SetDescCN("重置所有设置")
 					.SetDescEN("Reset All Settings")
