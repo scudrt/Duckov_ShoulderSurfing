@@ -16,7 +16,7 @@ using UnityEngine.UI;
 public static class MiniMapCommon
 {
 	public static bool isMapRotateWithCamera = false;
-	public static bool isMinimapRotateWithCamera = false;
+	public static bool isMinimapRotateWithCamera = true;
 	public static GameObject playerArrow;
 	public static float mapIndicatorAlpha = 0.5f;
 

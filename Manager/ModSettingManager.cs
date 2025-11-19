@@ -604,8 +604,8 @@ namespace ShoulderSurfing
                     }),
 
                 new SettingObject<bool>().SetName("MinimapRotationToggle")
-                    .SetDescCN("地图旋转开关")
-                    .SetDescEN("MapRotationToggle")
+                    .SetDescCN("大地图旋转开关")
+                    .SetDescEN("Map Rotation Toggle")
                     .SetGetValueFunc(() =>
                     {
                         return MiniMapCommon.isMapRotateWithCamera;
@@ -635,7 +635,7 @@ namespace ShoulderSurfing
                     }),
                 new SettingObject<bool>().SetName("CustomMinimapRotationToggle")
                     .SetDescCN("小地图旋转开关")
-                    .SetDescEN("MinimapRotationToggle")
+                    .SetDescEN("Minimap Rotation Toggle")
                     .SetGetValueFunc(() =>
                     {
                         return MiniMapCommon.isMinimapRotateWithCamera;
@@ -651,7 +651,7 @@ namespace ShoulderSurfing
                     })
                     .SetResetFunc((thisSettingObject) =>
                     {
-                        MiniMapCommon.isMinimapRotateWithCamera = false;
+                        MiniMapCommon.isMinimapRotateWithCamera = true;
                         ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), MiniMapCommon.isMinimapRotateWithCamera, null);
                     })
                     .SetRegisterFunc((thisSettingObject) =>

@@ -452,9 +452,9 @@ namespace ShoulderSurfing {
 		}
 
 		void UpdateCameraTargetPos() {
-			targetShoulderCameraOffset.x = __shoulderCameraOffsetX * (IsLeftShoulder ? -1f : 1f);
-			targetShoulderCameraOffset.y = __shoulderCameraOffsetY;
-			targetShoulderCameraOffset.z = __shoulderCameraOffsetZ;
+			targetCameraOffset.x = __shoulderCameraOffsetX * (IsLeftShoulder ? -1f : 1f);
+			targetCameraOffset.y = __shoulderCameraOffsetY;
+			targetCameraOffset.z = __shoulderCameraOffsetZ;
 		}
 
 		void UpdateCollidedCameraPosition() {
@@ -469,29 +469,40 @@ namespace ShoulderSurfing {
 			// v1.0: (1, 1.75, -2.8)
 			// v1.1: (1, 1.25, -2.8)
 			// v1.2: (1, 1.00, -2.8)
-			Vector3 cameraMoveOffset = targetShoulderCameraOffset - currentShoulderCameraOffset;
-			float camPosDeltaThisFrame = Time.unscaledDeltaTime * cameraLerpSpeed;
+			Vector3 cameraMoveOffset = targetCameraOffset - currentCameraOffset;
+			float camPosDeltaThisFrame = Time.unscaledDeltaTime * cameraSideSmoothSpeed;
 			if (cameraMoveOffset.magnitude > camPosDeltaThisFrame) {
-				currentShoulderCameraOffset += cameraMoveOffset.normalized * camPosDeltaThisFrame;
+				currentCameraOffset += cameraMoveOffset.normalized * camPosDeltaThisFrame;
 			} else {
-				currentShoulderCameraOffset = targetShoulderCameraOffset;
+				currentCameraOffset = targetCameraOffset;
 			}
-			Vector3 camOffset = cameraRight * currentShoulderCameraOffset.x
-										+ Vector3.up * currentShoulderCameraOffset.y
-										+ cameraForward * currentShoulderCameraOffset.z;
+			Vector3 camOffset = cameraRight * currentCameraOffset.x
+										+ Vector3.up * currentCameraOffset.y
+										+ cameraForward * currentCameraOffset.z;
 			Vector3 camDir = camOffset.normalized;
-			float camDistance = camOffset.magnitude;
+			float targetCamDistance = camOffset.magnitude;
 
 			// Handle camera collision
 			Ray shoulderCameraRay = new Ray(anchorPos, camDir);
 			RaycastHit hitinfo;
-			if (Physics.SphereCast(shoulderCameraRay, 0.15f, out hitinfo, camDistance, cameraCollisionLayerMask)) {
-				mainCamera.transform.position = anchorPos + hitinfo.distance * camDir;
-				camDistance = hitinfo.distance;
-			} else {
-				// No colliding
-				mainCamera.transform.position = anchorPos + camOffset;
+			if (Physics.SphereCast(shoulderCameraRay, 0.15f, out hitinfo, targetCamDistance, cameraCollisionLayerMask)) {
+				targetCamDistance = hitinfo.distance;
 			}
+
+			// Camera smooth arm
+			float cameraSmoothArmDelta = cameraSmoothArmSpeed * Time.deltaTime;
+			if (true/* enableSmmothCamera */) {
+				float cameraDistanceGap = targetCamDistance - currentCameraDistance;
+				if (Mathf.Abs(cameraDistanceGap) > cameraSmoothArmDelta) {
+					currentCameraDistance += cameraSmoothArmDelta * MathF.Sign(cameraDistanceGap);
+				} else {
+					currentCameraDistance = targetCamDistance;
+				}
+			} else {
+				// Set new camera position directly
+				currentCameraDistance = targetCamDistance;
+			}
+			mainCamera.transform.position = anchorPos + camDir * currentCameraDistance;
 		}
 
 		void Start() {
@@ -618,9 +629,11 @@ namespace ShoulderSurfing {
 		FieldInfo mouseDeltaField;
 
 		// Camera position lerp while switching shoulder side
-		const float cameraLerpSpeed = 5f;
-		Vector3 currentShoulderCameraOffset;
-		Vector3 targetShoulderCameraOffset;
+		const float cameraSideSmoothSpeed = 5f;
+		const float cameraSmoothArmSpeed = 8.5f;
+		float currentCameraDistance = 3f;
+		Vector3 currentCameraOffset;
+		Vector3 targetCameraOffset;
 		Vector3 anchorOffset = Vector3.up * 0.75f;
 
 		int cameraCollisionLayerMask;
