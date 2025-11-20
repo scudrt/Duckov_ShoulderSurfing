@@ -162,6 +162,11 @@ namespace ShoulderSurfing {
 		}
 
 		public static void TrySetTransformCameraFade(Transform trans, bool enable) {
+			if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
+			{
+				// Debug.Log("当前运行在macOS上");
+				return;
+			}
 			if (trans == null) {
 				return;
 			}
