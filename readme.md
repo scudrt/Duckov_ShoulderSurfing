@@ -1,3 +1,7 @@
+# English Readme
+
+[English Version](readmeEN.md)
+
 # 模组简介
 逃离鸭科夫 第三人称越肩视角模组
 让逃离鸭科夫成为越肩视角的射击游戏
@@ -26,12 +30,12 @@
 # 如何构建
 1. clone本源码
 
-2. 参考鸭科夫官方文档，构建MOD编译环境（或者用VS Code打开项目文件夹，它会提示并帮助你构建本项目所需的环境）
+2. 参考鸭科夫官方文档，构建MOD编译环境（或者用VS Code打开项目文件夹，并启用.Net插件，它会提示并帮助你构建本项目所需的环境）
 
 3. 修改.csproj文件，将其中的`DuckovPath`一项改为你本地的游戏路径
 
-4. 使用Release版本，开始构建
+4. 使用Release版本，开始构建(vscode打开项目时，需要手动运行"dotnet build --configuration Release"命令或者使用tasks.json文件来自动构建)
 
-5. 构建成功后，游戏目录下Mods文件夹将会自动出现构建好的越肩MOD。打开游戏，可以在MODS菜单中找到这个MOD
+1. 构建成功后，游戏目录下Mods文件夹将会自动出现构建好的越肩MOD。打开游戏，可以在MODS菜单中找到这个MOD
 
-6. 本MOD设置功能依赖`MODSetting`这个模组，没有该模组将无法使用MOD设置功能
+2. 本MOD设置功能依赖`MODSetting`这个模组，没有该模组将无法使用MOD设置功能
