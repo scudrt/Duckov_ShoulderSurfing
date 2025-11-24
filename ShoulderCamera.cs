@@ -192,11 +192,6 @@ namespace ShoulderSurfing {
 		}
 
 		public static void TrySetTransformCameraFade(Transform trans, bool enable) {
-			if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
-			{
-				// Debug.Log("当前运行在macOS上");
-				return;
-			}
 			if (trans == null) {
 				return;
 			}
@@ -661,7 +656,7 @@ namespace ShoulderSurfing {
 
 			global::System.Action<global::GameCamera, global::CharacterMainControl> onCameraPosUpdate = global::GameCamera.OnCameraPosUpdate;
 			if (onCameraPosUpdate != null) {
-				onCameraPosUpdate(hookCamera, this.target);
+				// onCameraPosUpdate(hookCamera, this.target);
 			}
 		}
 

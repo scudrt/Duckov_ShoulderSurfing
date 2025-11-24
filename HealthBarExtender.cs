@@ -18,9 +18,6 @@ using Unity.Collections;
 public class HealthBarCommon {
 	public static Dictionary<HealthBar, float> LastTimeToHurt = new Dictionary<HealthBar, float>();
 	public static HashSet<HealthBar> AffectedInstances = new HashSet<HealthBar>();
-	public static HashSet<GameObject> OriginActiveLevelIcons = new HashSet<GameObject>();
-	public static HashSet<GameObject> OriginActiveNameTexts = new HashSet<GameObject>();
-	
 
 	public static FieldInfo fillField;
 	public static FieldInfo followFillField;
@@ -28,6 +25,7 @@ public class HealthBarCommon {
 	public static FieldInfo backgroundField;
 	public static FieldInfo nameTextField;
 	public static FieldInfo levelIconField;
+	public static MethodInfo refreshIconMethod; // RefreshCharacterIcon
 
 	public static void InitializeFields() {
 		if (fillField != null) {
@@ -40,8 +38,7 @@ public class HealthBarCommon {
 		backgroundField = typeof(HealthBar).GetField("deathIndicator", BindingFlags.NonPublic | BindingFlags.Instance);
 		nameTextField = typeof(HealthBar).GetField("nameText", BindingFlags.NonPublic | BindingFlags.Instance);
 		levelIconField = typeof(HealthBar).GetField("levelIcon", BindingFlags.NonPublic | BindingFlags.Instance);
-		OriginActiveNameTexts.Clear();
-		OriginActiveLevelIcons.Clear();
+		refreshIconMethod = typeof(HealthBar).GetMethod("RefreshCharacterIcon", BindingFlags.NonPublic | BindingFlags.Instance);
 	}
 
 	public static void ClearAffectedForInstance(HealthBar instance) {
@@ -68,8 +65,6 @@ public class HealthBarCommon {
 			}
 			HealthBarCommon.AffectedInstances.Clear();
 			HealthBarCommon.LastTimeToHurt.Clear();
-			HealthBarCommon.OriginActiveLevelIcons.Clear();
-			HealthBarCommon.OriginActiveNameTexts.Clear();
 		}
 	}
 }
@@ -113,24 +108,11 @@ public static class HealthBarUpdatePositionExtender {
 				HealthBarCommon.AffectedInstances.Add(__instance);
 
 				// Handle name tag and level icon show state
-				if (levelIcon.gameObject.activeSelf) {
-					HealthBarCommon.OriginActiveLevelIcons.Add(levelIcon.gameObject);
-					levelIcon.gameObject.SetActive(false);
-				}
-				if (nameText.gameObject.activeSelf) {
-					HealthBarCommon.OriginActiveNameTexts.Add(nameText.gameObject);
-					nameText.gameObject.SetActive(false);
-				}
+				levelIcon.gameObject.SetActive(false);
+				nameText.gameObject.SetActive(false);
 			} else {
 				// Going to recover health bar state
-				if (HealthBarCommon.OriginActiveLevelIcons.Contains(levelIcon.gameObject)) {
-					levelIcon.gameObject.SetActive(true);
-					HealthBarCommon.OriginActiveLevelIcons.Remove(levelIcon.gameObject);
-				}
-				if (HealthBarCommon.OriginActiveNameTexts.Contains(nameText.gameObject)) {
-					nameText.gameObject.SetActive(true);
-					HealthBarCommon.OriginActiveNameTexts.Remove(nameText.gameObject);
-				}
+				HealthBarCommon.refreshIconMethod.Invoke(__instance, new object[] { });
 			}
 
 			// Set health bar show state
@@ -155,8 +137,6 @@ public static class HealthBarOnTargetDeadExtender {
 		// Clear references for this instance
 		Image levelIcon = (Image)HealthBarCommon.levelIconField.GetValue(__instance);
 		TextMeshProUGUI nameText = (TextMeshProUGUI)HealthBarCommon.nameTextField.GetValue(__instance);
-		HealthBarCommon.OriginActiveNameTexts.Remove(nameText.gameObject);
-		HealthBarCommon.OriginActiveLevelIcons.Remove(levelIcon.gameObject);
 	}
 }
 
