@@ -15,15 +15,38 @@ namespace ShoulderSurfing
             return DirectoryName;
         }
 
-        public static Shader LoadShader(string shaderName) {
-            string shaderPath = Path.Combine(GetDirectory(), "shaders/shaders");
+		public static Material LoadMaterial(string matName) {
+			string platformStr = "Win";
+			if (Application.platform == RuntimePlatform.OSXPlayer) {
+				platformStr = "OSX";
+			}
+            string matPath = Path.Combine(GetDirectory(), "shaders/" + platformStr + "/shaders");
+			AssetBundle bundle = AssetBundle.LoadFromFile(matPath);
+			if (!bundle) {
+				Debug.Log("[shoulder camera] can't load bundle from path " + matPath);
+				return null;
+			}
+			Material mat = bundle.LoadAsset<Material>(matName);
+			if (!mat) {
+				Debug.Log("[shoulder camera] failed to load material, no material named " + matName);
+			}
+			return mat;
+		}
+
+
+		public static Shader LoadShader(string shaderName) {
+            string platformStr = "Win";
+            if (Application.platform == RuntimePlatform.OSXPlayer) {
+                platformStr = "OSX";
+			}
+            string shaderPath = Path.Combine(GetDirectory(), "shaders/" + platformStr + "/shaders");
             AssetBundle bundle = AssetBundle.LoadFromFile(shaderPath);
             if (!bundle) {
                 Debug.Log("[shoulder camera] can't load bundle from path " + shaderPath);
                 return null;
             }
 			Shader shader = bundle.LoadAsset<Shader>(shaderName);
-            if (!shader) {
+            if (shader == null) {
                 Debug.Log("[shoulder camera] failed to load shader, no shader named " + shaderName);
             }
             return shader;

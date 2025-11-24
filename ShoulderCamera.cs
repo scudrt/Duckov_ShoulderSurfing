@@ -12,6 +12,7 @@ using ECM2;
 using Steamworks;
 using Unity.VisualScripting;
 using Unity.Collections;
+using UnityEngine.ProBuilder;
 
 namespace ShoulderSurfing {
 	public class ShoulderCamera: MonoBehaviour {
@@ -25,7 +26,8 @@ namespace ShoulderSurfing {
 
 		public static bool enableAimOcclusionFade = false; // 启用准星透视
 
-		public static Shader characterFadeShader = Util.LoadShader("SodaCharacter");
+		public static Material characterFadeMaterial; //  = Util.LoadMaterial("SodaCharacter");
+		public static Shader characterFadeShader;
 
 		public static float shoulderCameraOffsetX {
 			get {
@@ -161,6 +163,34 @@ namespace ShoulderSurfing {
 			}
 		}
 
+		public static void SyncMaterialProperties(Material dstMat, Material srcMat) {
+			for (int i = 0; i < srcMat.shader.GetPropertyCount(); ++i) {
+				int propId = srcMat.shader.GetPropertyNameId(i);
+				if (!dstMat.HasProperty(propId)) {
+					Debug.Log("no property" + srcMat.shader.GetPropertyName(i));
+					continue;
+				}
+				Debug.Log("sync property" + srcMat.shader.GetPropertyName(i));
+
+				var typeOfProp = srcMat.shader.GetPropertyType(i);
+				if (typeOfProp == ShaderPropertyType.Float || typeOfProp == ShaderPropertyType.Range) {
+					dstMat.SetFloat(propId, srcMat.GetFloat(propId));
+				} else if (typeOfProp == ShaderPropertyType.Int) {
+					dstMat.SetInt(propId, srcMat.GetInt(propId));
+				} else if (typeOfProp == ShaderPropertyType.Color) {
+					dstMat.SetColor(propId, srcMat.GetColor(propId));
+				} else if (typeOfProp == ShaderPropertyType.Vector) {
+					dstMat.SetVector(propId, srcMat.GetVector(propId));
+				} else if (typeOfProp == ShaderPropertyType.Texture) {
+					dstMat.SetTexture(propId, srcMat.GetTexture(propId));
+					dstMat.SetTextureOffset(propId, srcMat.GetTextureOffset(propId));
+					dstMat.SetTextureScale(propId, srcMat.GetTextureScale(propId));
+				} else {
+					Debug.Log("failed to sync property");
+				}
+			}
+		}
+
 		public static void TrySetTransformCameraFade(Transform trans, bool enable) {
 			if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
 			{
@@ -172,21 +202,31 @@ namespace ShoulderSurfing {
 			}
 
 			foreach (var renderer in trans.GetComponentsInChildren<Renderer>()) {
-				foreach (var mat in renderer.materials) {
+				var originMats = renderer.sharedMaterials;
+				for (int i = 0; i < originMats.Length; ++i) {
+					var mat = originMats[i];
+
 					// Replace camera fade shader for character and weapon
 					if (mat.shader.name != "SodaCraft/SodaCharacter" && mat.shader.name != "SodaCraft/SodaLit") {
 						continue;
 					}
-					if (enable) {
-						mat.shader = characterFadeShader;
-						mat.renderQueue = 5000;
-					} else {
-						if (mat.HasFloat("_CameraFadeStartDistance")) { // It's our fade material
-							mat.SetFloat("_CameraFadeStartDistance", 0.1f);
-							mat.SetFloat("_CameraFadeEndDistance", 0f);
+
+					bool usingCustomMaterial = mat.HasFloat("_CameraFadeStartDistance");
+					if (!usingCustomMaterial) {
+						// Create and replace our camera fade material to enable camera fading
+						if (enable) {
+							var newMat = new Material(characterFadeShader);
+							newMat.CopyMatchingPropertiesFromMaterial(mat);
+							originMats[i] = newMat;
+						} else {
+							; // Do nothing while disabling camera fade without our material
 						}
+					} else {
+						mat.SetFloat("_CameraFadeStartDistance", enable ? 1.1f : 0.1f);
+						mat.SetFloat("_CameraFadeEndDistance", enable ? 0.8f : 0f);
 					}
 				}
+				renderer.sharedMaterials = originMats;
 			}
 		}
 
@@ -519,6 +559,8 @@ namespace ShoulderSurfing {
 				| (1 << LayerMask.NameToLayer("Wall_FowBlock"));
 
 			mouseDeltaField = typeof(CharacterInputControl).GetField("mouseDelta", BindingFlags.NonPublic | BindingFlags.Instance);
+
+			characterFadeShader = Util.LoadShader("SodaCharacter");
 
 			shoulderCameraToggled = true;
 			shoulderCameraInitalized = false;
