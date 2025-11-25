@@ -49,7 +49,10 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameStartExtender), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameEndExtender), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayHandlePOIExtender), "HandlePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
-			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterMainControlExtender), "SetCharacterModel");
+			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterTurnSpeedGetterExtender), "get_CharacterTurnSpeed");
+			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterSetModelExtender), "SetCharacterModel");
+			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterIsAimingExtender), "IsAiming");
+			PatchSingleExtender(typeof(CharacterMainControl), typeof(CharacterTriggerExtender), "Trigger");
 			PatchSingleExtender(typeof(SoundVisualization), typeof(SoundVisualizationExtender), "RefreshEntryPosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(CharacterEquipmentController), typeof(CharacterEquipmentExtender), "ChangeEquipmentModel", BindingFlags.Instance | BindingFlags.NonPublic);
 			// PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayReleasePOIExtender), "ReleasePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -71,7 +74,10 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "HandlePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);
+			UnpatchSingleExtender(typeof(CharacterMainControl), "get_CharacterTurnSpeed");
 			UnpatchSingleExtender(typeof(CharacterMainControl), "SetCharacterModel");
+			UnpatchSingleExtender(typeof(CharacterMainControl), "IsAiming");
+			UnpatchSingleExtender(typeof(CharacterMainControl), "Trigger");
 			UnpatchSingleExtender(typeof(SoundVisualization), "RefreshEntryPosition", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(CharacterEquipmentController), "ChangeEquipmentModel", BindingFlags.Instance | BindingFlags.NonPublic);
 			// UnpatchSingleExtender(typeof(MiniMapDisplay), "ReleasePointOfInterest", BindingFlags.Instance | BindingFlags.NonPublic);

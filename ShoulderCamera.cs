@@ -61,7 +61,7 @@ namespace ShoulderSurfing {
 				}
 			}
 		}
-		private static float __shoulderCameraOffsetX = 1f;
+		private static float __shoulderCameraOffsetX = 0.8f;
 		private static float __shoulderCameraOffsetY = 1f;
 		private static float __shoulderCameraOffsetZ = -2.8f;
 
@@ -659,7 +659,7 @@ namespace ShoulderSurfing {
 
 			global::System.Action<global::GameCamera, global::CharacterMainControl> onCameraPosUpdate = global::GameCamera.OnCameraPosUpdate;
 			if (onCameraPosUpdate != null) {
-				// onCameraPosUpdate(hookCamera, this.target);
+				onCameraPosUpdate(hookCamera, this.target);
 			}
 		}
 

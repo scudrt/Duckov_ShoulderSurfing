@@ -48,16 +48,16 @@ public static class MiniMapCommon
 
 	public static Quaternion GetPlayerMinimapRotation()
 	{
-		// Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.up.ProjectOntoPlane(Vector3.up);
-		Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
+		Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.forward.ProjectOntoPlane(Vector3.up);
+		// Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
 		float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
 		return Quaternion.Euler(0f, 0f, -currentMapZRotation);
 	}
 
 	public static Quaternion GetCameraRotation()
     {
-		// Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.up.ProjectOntoPlane(Vector3.up);
-		Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
+		Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.forward.ProjectOntoPlane(Vector3.up);
+		// Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
 		float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
 		return Quaternion.Euler(0f, 0f, currentMapZRotation);
     }
