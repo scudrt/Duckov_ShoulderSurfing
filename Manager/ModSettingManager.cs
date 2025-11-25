@@ -193,12 +193,12 @@ namespace ShoulderSurfing
 					})
 					.SetLoadFunc((thisSettingObject) =>
 					{
-						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : true;
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : false;
 						CharacterMainControlCommon.syncWithCameraDirection = value;
 					})
 					.SetResetFunc((thisSettingObject) =>
 					{
-						CharacterMainControlCommon.syncWithCameraDirection = true;
+						CharacterMainControlCommon.syncWithCameraDirection = false;
 						ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), CharacterMainControlCommon.syncWithCameraDirection, null);
 					})
 					.SetRegisterFunc((thisSettingObject) =>
