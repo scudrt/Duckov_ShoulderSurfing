@@ -44,7 +44,7 @@ namespace ShoulderSurfing {
 			PatchSingleExtender(typeof(MiniMapCompass), typeof(MiniMapCompassExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplayExtender), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(MiniMapDisplay), typeof(MiniMapDisplaySetupExtender), "Setup");
-			PatchSingleExtender(typeof(MiniMapView), typeof(MiniMapViewOnSetZoomExtender), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
+			// PatchSingleExtender(typeof(MiniMapView), typeof(MiniMapViewOnSetZoomExtender), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(StaminaHUD), typeof(StaminaHUDExtender), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameStartExtender), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			PatchSingleExtender(typeof(GamingConsole), typeof(MiniGameEndExtender), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -66,7 +66,7 @@ namespace ShoulderSurfing {
 			UnpatchSingleExtender(typeof(MiniMapCompass), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "SetupRotation", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(MiniMapDisplay), "Setup");
-			UnpatchSingleExtender(typeof(MiniMapView), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
+			// UnpatchSingleExtender(typeof(MiniMapView), "OnSetZoom", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(StaminaHUD), "Update", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStart", BindingFlags.Instance | BindingFlags.NonPublic);
 			UnpatchSingleExtender(typeof(GamingConsole), "OnInteractStop", BindingFlags.Instance | BindingFlags.NonPublic);

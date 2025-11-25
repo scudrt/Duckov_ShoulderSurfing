@@ -197,7 +197,10 @@ namespace ShoulderSurfing {
 			}
 
 			foreach (var renderer in trans.GetComponentsInChildren<Renderer>()) {
-				var originMats = renderer.sharedMaterials;
+				var originMats = renderer.materials;
+				// var originMats = renderer.sharedMaterials;
+				if(originMats == null)
+					continue;
 				for (int i = 0; i < originMats.Length; ++i) {
 					var mat = originMats[i];
 

@@ -22,7 +22,7 @@ namespace ShoulderSurfing
         public static KeyCode MinimapToggleKey = KeyCode.Alpha9;
 
         public static float displayZoomScale = 2f;
-        public static float displayZoomGap = 1f;
+        public static float displayZoomGap = 0.5f;
         public static Vector2 displayZoomRange = new Vector2(0.1f, 30);
         public static Vector2 miniMapPositionOffset = new Vector2(0.85f, 0.1f); // 左上角位置
 
@@ -482,7 +482,6 @@ namespace ShoulderSurfing
                 rectTransform.localScale = Vector3.one;
             }
 
-            CallDisplayMethod("AutoSetup");
             duplicatedMinimapObject.transform.localPosition = Vector3.zero;
             duplicatedMinimapDisplay.transform.localRotation = Quaternion.identity;
             foreach(Transform child in duplicatedMinimapDisplay.transform)
@@ -497,7 +496,8 @@ namespace ShoulderSurfing
                     GameObject.Destroy(child.gameObject);
                 }
             }
-
+            CallDisplayMethod("AutoSetup");
+            PlayerArrow.SetOffset(duplicatedMinimapDisplay, 0.5f);
             UpdateDisplayZoom();
             // 禁用可能干扰的交互组件
             // DisableInterferenceComponents();
