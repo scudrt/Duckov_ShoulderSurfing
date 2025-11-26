@@ -1077,7 +1077,8 @@ namespace ShoulderSurfing
                 }, 0.9f, true);
                 ModSettingAPI.AddGroup("CameraGroup",  isChinese ? "相机设置" : "Camera Setting", new List<string>()
                 {
-                    "InvertYAxis",
+					"FreeCamera",
+					"InvertYAxis",
                     "Fov",
                     "RenderingDistance",
                     "CameraOffsetLeftRight",
