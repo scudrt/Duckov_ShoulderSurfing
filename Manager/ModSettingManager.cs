@@ -89,7 +89,7 @@ namespace ShoulderSurfing
                             thisSettingObject.getValueFunc(),
                             thisSettingObject.valueChangeFunc
                         );
-                    }), 
+                    }),
                 new SettingObject<KeyCode>().SetName("ShoulderSideKeySingle")
                     .SetDescCN("左右肩切换快捷键")
                     .SetDescEN("Shoulder Side Switch Key")
@@ -193,12 +193,12 @@ namespace ShoulderSurfing
 					})
 					.SetLoadFunc((thisSettingObject) =>
 					{
-						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : false;
+						var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out bool d1) ? d1 : true;
 						CharacterMainControlCommon.syncWithCameraDirection = value;
 					})
 					.SetResetFunc((thisSettingObject) =>
 					{
-						CharacterMainControlCommon.syncWithCameraDirection = false;
+						CharacterMainControlCommon.syncWithCameraDirection = true;
 						ModSettingAPI.SetValue<bool>(thisSettingObject.GetName(), CharacterMainControlCommon.syncWithCameraDirection, null);
 					})
 					.SetRegisterFunc((thisSettingObject) =>
@@ -850,6 +850,38 @@ namespace ShoulderSurfing
                         );
                     }),
 
+                new SettingObject<float>().SetName("CustomMinimapZoomGap")
+                    .SetDescCN("小地图缩放步长")
+                    .SetDescEN("Minimap Zoom Step")
+                    .SetValueChangeFunc((value) =>
+                    {
+                        CustomMinimapManager.displayZoomGap = value;
+                    })
+                    .SetGetValueFunc(() =>
+                    {
+                        return CustomMinimapManager.displayZoomGap;
+                    })
+                    .SetLoadFunc((thisSettingObject) =>
+                    {
+                        var value = ModSettingAPI.GetSavedValue(thisSettingObject.GetName(), out float d1) ? d1 : CustomMinimapManager.displayZoomGap;
+                        CustomMinimapManager.displayZoomGap = value;
+                    })
+                    .SetResetFunc((thisSettingObject) =>
+                    {
+                        CustomMinimapManager.displayZoomGap = 0.5f;
+                        ModSettingAPI.SetValue<float>(thisSettingObject.GetName(), CustomMinimapManager.displayZoomGap, null);
+                    })
+                    .SetRegisterFunc((thisSettingObject) =>
+                    {
+                        ModSettingAPI.AddSlider(
+                            thisSettingObject.name,
+                            isChinese ? thisSettingObject.descCN : thisSettingObject.descEN,
+                            thisSettingObject.getValueFunc(),
+                            new Vector2(0.1f, 2f),
+                            thisSettingObject.valueChangeFunc,
+                            2
+                        );
+                    }),
                 new SettingObject<float>().SetName("CustomMinimapPositionX")
                     .SetDescCN("小地图X轴位置")
                     .SetDescEN("MinimapXAxisPosition")
@@ -1009,6 +1041,49 @@ namespace ShoulderSurfing
                     settingObject.Load();
                     settingObject.Register();
                 }
+
+                // TODO 有空再想个比较统一的方式处理
+                ModSettingAPI.AddGroup("MiscGroup",  isChinese ? "杂项设置" : "Misc Setting", new List<string>()
+                {
+                    "AimOcclusionFade",
+                    "WallHacking",
+                    "StaminaBarScale",
+                    "StaminaBarPositionX",
+                    "StaminaBarPositionY",
+                    "ShoulderMouseSensitiveADS",
+                    "ShoulderMouseSensitive",
+                    "RecoilMultiplier",
+
+                }, 0.9f, true);
+                ModSettingAPI.AddGroup("KeybindGroup",  isChinese ? "快捷键设置" : "Shortcut Setting", new List<string>()
+                {
+                    "CustomMinimapToggle",
+                    "CustomMinimapInnerScaleUp",
+                    "CustomMinimapInnerScaleDown",
+                    "ShoulderRightSideKey",
+                    "ShoulderLeftSideKey",
+                    "ShoulderSideKeySingle",
+                    "ShoulderCameraToggleKey",
+                }, 0.9f, true);
+                ModSettingAPI.AddGroup("MinimapGroup", isChinese ? "小地图设置" : "Minimap Setting", new List<string>() { 
+                    "CustomMinimapOpen",
+                    "CustomMinimapContainerScale",
+                    "CustomMinimapPositionY",
+                    "CustomMinimapPositionX",
+                    "CustomMinimapZoomGap",
+                    "MapIndicatorAlpha",
+                    "CustomMinimapRotationToggle",
+                    "MinimapRotationToggle"
+                }, 0.9f, true);
+                ModSettingAPI.AddGroup("CameraGroup",  isChinese ? "相机设置" : "Camera Setting", new List<string>()
+                {
+                    "InvertYAxis",
+                    "Fov",
+                    "RenderingDistance",
+                    "CameraOffsetLeftRight",
+                    "CameraOffsetUp",
+                    "CameraOffsetBackward",
+                }, 0.9f, true);
             }
             catch (Exception e)
             {
