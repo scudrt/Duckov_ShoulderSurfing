@@ -39,6 +39,9 @@ public static class CharacterSetModelExtender {
 public static class CharacterIsAimingExtender {
 	
 	public static bool Prefix(CharacterMainControl __instance, ref bool __result) {
+		if (!ShoulderCamera.shoulderCameraInitalized) {
+			return true;
+		}
 		if (CharacterMainControlCommon.syncWithCameraDirection) {
 			return true;
 		}
@@ -65,6 +68,9 @@ public static class CharacterIsAimingExtender {
 public static class CharacterTriggerExtender {
 
 	public static bool Prefix(CharacterMainControl __instance, ref bool trigger) {
+		if (!ShoulderCamera.shoulderCameraInitalized) {
+			return true;
+		}
 		if (CharacterMainControlCommon.syncWithCameraDirection) {
 			return true;
 		}
