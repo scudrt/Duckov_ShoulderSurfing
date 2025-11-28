@@ -49,6 +49,8 @@ namespace ShoulderSurfing
             if (shader == null) {
                 Debug.Log("[shoulder camera] failed to load shader, no shader named " + shaderName);
             }
+            bundle.Unload(false);
+
             return shader;
         }
 

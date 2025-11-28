@@ -26,8 +26,8 @@ namespace ShoulderSurfing {
 
 		public static bool enableAimOcclusionFade = false; // 启用准星透视
 
-		public static Material characterFadeMaterial; //  = Util.LoadMaterial("SodaCharacter");
 		public static Shader characterFadeShader;
+		public static Shader weaponFadeShader;
 
 		public static float shoulderCameraOffsetX {
 			get {
@@ -205,7 +205,13 @@ namespace ShoulderSurfing {
 					var mat = originMats[i];
 
 					// Replace camera fade shader for character and weapon
-					if (mat.shader.name != "SodaCraft/SodaCharacter" && mat.shader.name != "SodaCraft/SodaLit") {
+					Shader? replaceShader = null;
+					if (mat.shader.name == "SodaCraft/SodaCharacter") {
+						replaceShader = characterFadeShader;
+					} else if (mat.shader.name == "SodaCraft/SodaLit") {
+						replaceShader = weaponFadeShader;
+					} else {
+						// Not target shader
 						continue;
 					}
 
@@ -213,7 +219,7 @@ namespace ShoulderSurfing {
 					if (!usingCustomMaterial) {
 						// Create and replace our camera fade material to enable camera fading
 						if (enable) {
-							var newMat = new Material(characterFadeShader);
+							var newMat = new Material(replaceShader);
 							newMat.CopyMatchingPropertiesFromMaterial(mat);
 							originMats[i] = newMat;
 						} else {
@@ -559,6 +565,7 @@ namespace ShoulderSurfing {
 			mouseDeltaField = typeof(CharacterInputControl).GetField("mouseDelta", BindingFlags.NonPublic | BindingFlags.Instance);
 
 			characterFadeShader = Util.LoadShader("SodaCharacter");
+			weaponFadeShader = Util.LoadShader("SodaLit");
 
 			shoulderCameraToggled = true;
 			shoulderCameraInitalized = false;
