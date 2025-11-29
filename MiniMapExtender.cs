@@ -26,18 +26,6 @@ public static class MiniMapCommon
     //     return name.StartsWith("MapElement") || name.StartsWith("POI_") || poiObject == LevelManager.Instance.MainCharacter.gameObject;
     // }
 
-	public static Vector3 GetPlayerMinimapLocalPosition()
-	{
-		Vector3 vector;
-		// MiniMapSettings.TryGetMinimapPosition(LevelManager.Instance.MainCharacter.transform.position, out vector);
-		// return LevelManager.Instance.MainCharacter.transform.position - MiniMapSettings.Instance.CombinedCenter;
-		// MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position + LevelManager.Instance.MainCharacter.transform.forward * 1f - LevelManager.Instance.MainCharacter.transform.right, out vector);
-		MiniMapView.TryConvertWorldToMinimapPosition(LevelManager.Instance.MainCharacter.transform.position + LevelManager.Instance.MainCharacter.transform.forward * 1.08f - LevelManager.Instance.MainCharacter.transform.right * 0.7f, out vector);
-		return vector;
-		// return MiniMapSettings.Instance.CombinedCenter;
-		// return vector;
-	}
-
 	public static Vector3 GetPlayerMinimapGlobalPosition(MiniMapDisplay minimapDisplay)
 	{
 		Vector3 vector;
@@ -48,19 +36,18 @@ public static class MiniMapCommon
 
 	public static Quaternion GetPlayerMinimapRotation()
 	{
-		Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.forward.ProjectOntoPlane(Vector3.up);
-		// Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
-		float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
+		Vector3 to = ShoulderCamera.CameraForward;
+        float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
 		return Quaternion.Euler(0f, 0f, -currentMapZRotation);
 	}
 
-	public static Quaternion GetCameraRotation()
-    {
-		Vector3 to = LevelManager.Instance.GameCamera.renderCamera.transform.forward.ProjectOntoPlane(Vector3.up);
-		// Vector3 to = LevelManager.Instance.MainCharacter.CurrentAimDirection.ProjectOntoPlane(Vector3.up);
-		float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
+	public static Quaternion GetPlayerMinimapRotationInverse()
+	{
+		Vector3 to = ShoulderCamera.CameraForward;
+        float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
 		return Quaternion.Euler(0f, 0f, currentMapZRotation);
-    }
+	}
+
 }
 
 [HarmonyPatch(typeof(MiniMapCompass))]
@@ -98,7 +85,7 @@ public static class MiniMapDisplayExtender
 	{
 		if (MiniMapCommon.isMapRotateWithCamera)
 		{
-			__instance.transform.localRotation = MiniMapCommon.GetCameraRotation();
+			__instance.transform.rotation = MiniMapCommon.GetPlayerMinimapRotationInverse();
 		}
 		else
 		{

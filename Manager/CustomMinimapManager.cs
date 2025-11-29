@@ -611,9 +611,7 @@ namespace ShoulderSurfing
         private void UpdateMiniMapRotation()
         {
             if (MiniMapCommon.isMinimapRotateWithCamera) {
-                Vector3 to = ShoulderCamera.CameraForward;
-                float currentMapZRotation = Vector3.SignedAngle(Vector3.forward, to, Vector3.up);
-                duplicatedMinimapDisplay.transform.rotation = Quaternion.Euler(0, 0, currentMapZRotation);
+                duplicatedMinimapDisplay.transform.rotation = MiniMapCommon.GetPlayerMinimapRotationInverse();
             } else {
                 duplicatedMinimapDisplay.transform.rotation = Quaternion.Euler(0f, 0f, MiniMapCompassExtender.originMapZRotation);
             }
