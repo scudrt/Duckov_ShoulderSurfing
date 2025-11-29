@@ -249,6 +249,7 @@ namespace ShoulderSurfing
             {
                 CallDisplayMethod("UnregisterEvents");
             }
+            PlayerArrow.ReleasePlayerArrow();
             GameObject.Destroy(duplicatedMinimapObject);
             GameObject.Destroy(duplicatedMinimapDisplay);
             duplicatedMinimapDisplay = null;

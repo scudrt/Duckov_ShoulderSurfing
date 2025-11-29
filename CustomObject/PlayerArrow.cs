@@ -25,9 +25,13 @@ namespace ShoulderSurfing
             }
         }
 
+        public static void ReleasePlayerArrow()
+        {
+            playerArrows.Clear();
+        }
+
         public static GameObject CreateOrGetPlayerArrow(MiniMapDisplay display)
         {
-            
             if (playerArrows.ContainsKey(display))
             {
                 var preObj = playerArrows[display];
